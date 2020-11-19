@@ -98,17 +98,17 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	//Set up vertices
 	for( j = 0; j < ( resolution ); j++ ) {
 		for( i = 0; i < ( resolution ); i++ ) {
-			positionY = (float)i * scale;
-			positionZ = (float)( j ) * scale;
+			positionY =  ((float)i * scale);
+			positionZ = ((float)( j ) * scale);
 			if (mirrored == true)
 			{
 				positionX = heightMap[index];
-				vertices[index].position = XMFLOAT3(positionX, positionY * (height / 100), positionZ * (width / 100));
+				vertices[index].position = XMFLOAT3(positionX, position_offsetY + (positionY * (height / 100)), position_offsetX + (positionZ * (width / 100)));
 			}
 			else
 			{
 				positionX = -heightMap[index];
-				vertices[index].position = XMFLOAT3(positionX, positionY * (height / 100), positionZ * (width / 100));
+				vertices[index].position = XMFLOAT3(positionX, position_offsetY + (positionY * (height / 100)), position_offsetX + (positionZ * (width / 100)));
 			}
 
 			

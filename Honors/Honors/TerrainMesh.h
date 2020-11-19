@@ -11,14 +11,20 @@ public:
 
 	const inline int GetResolution(){ return resolution; }
 
-	const inline int GetHeight() { return height; }
+	const inline float GetHeight() { return height; }
 	void SetHeight(float Height) { height = Height; }
 	
-	const inline int GetWidth() { return width; }
+	const inline float GetWidth() { return width; }
 	void SetWidth(float Width) { width = Width; }
 
-	const inline int GetThickness() { return thickness;}
+	const inline float GetThickness() { return thickness;}
 	void SetThickness(float Thickness) { thickness = Thickness; }
+
+	const inline float GetOffsetX() { return position_offsetX; }
+	void SetOffsetX(float pos_OffsetX) { position_offsetX = pos_OffsetX; }
+
+	const inline float GetOffsetY() { return position_offsetY; }
+	void SetOffsetY(float pos_OffsetY) { position_offsetY = pos_OffsetY; }
 
 	void setMirrored(bool Mirror) { mirrored = Mirror;}
 
@@ -30,6 +36,7 @@ private:
 	const float terrainSize = 25.0f;		//What is the width and height of our terrain
 	float* heightMap;
 	float height = 50, width =20, thickness = 2;
+	float position_offsetX, position_offsetY;
 	
 	bool mirrored;
 };
