@@ -7,7 +7,7 @@ public:
 	~TerrainMesh();
 
 	void Resize( int newResolution );
-	void Regenerate( ID3D11Device* device, ID3D11DeviceContext* deviceContext );
+	void Regenerate( ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	const inline int GetResolution(){ return resolution; }
 
@@ -20,15 +20,18 @@ public:
 	const inline float GetThickness() { return thickness;}
 	void SetThickness(float Thickness) { thickness = Thickness; }
 
-	const inline float GetOffsetX() { return position_offsetX; }
-	void SetOffsetX(float pos_OffsetX) { position_offsetX = pos_OffsetX; }
+	void SetOffsetZ(float pos_OffsetZ) { position_offsetZ = pos_OffsetZ; }
 
-	const inline float GetOffsetY() { return position_offsetY; }
 	void SetOffsetY(float pos_OffsetY) { position_offsetY = pos_OffsetY; }
 
 	void setMirrored(bool Mirror) { mirrored = Mirror;}
 
+	const inline float GetDynamicHeight() { return dynamic_height; }
+
+	const inline float GetDynamicWidth() { return dynamic_width; }
+
 private:
+
 	void CreateBuffers( ID3D11Device* device, VertexType* vertices, unsigned long* indices );
 	void BuildEdges();
 
@@ -36,7 +39,8 @@ private:
 	const float terrainSize = 25.0f;		//What is the width and height of our terrain
 	float* heightMap;
 	float height = 50, width =20, thickness = 2;
-	float position_offsetX, position_offsetY;
-	
+	float position_offsetZ, position_offsetY;
+
+	float dynamic_height, dynamic_width;
 	bool mirrored;
 };

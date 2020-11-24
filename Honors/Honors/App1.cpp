@@ -62,11 +62,10 @@ bool App1::frame()
 
 	if (bladeHeight != blade->GetHeight())
 	{
-		blade->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-		blade->SetHeight(bladeHeight);
-	
-		blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		blade_mirrored->SetHeight(bladeHeight);
+		blade->SetHeight(bladeHeight);
+
+		updateHeights();
 	}
 
 	if (bladeThickness != blade->GetThickness())
@@ -80,20 +79,18 @@ bool App1::frame()
 
 	if (bladeWidth != blade->GetWidth())
 	{
-		blade->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		blade->SetWidth(bladeWidth);
-
-		blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		blade_mirrored->SetWidth(bladeWidth);
+
+		updateWidth();
 	}
 
 	if (guardHeight != guard->GetHeight())
 	{
-		guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		guard_mirrored->SetHeight(guardHeight);
 		guard->SetHeight(guardHeight);
 
-		guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-		guard_mirrored->SetHeight(guardHeight);
+		updateHeights();
 	}
 
 	if (guardThickness != guard->GetThickness())
@@ -107,20 +104,18 @@ bool App1::frame()
 
 	if (guardWidth != guard->GetWidth())
 	{
-		guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		guard->SetWidth(guardWidth);
-
-		guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		guard_mirrored->SetWidth(guardWidth);
+
+		updateWidth();
 	}
 
 	if (handleHeight != handle->GetHeight())
 	{
-		handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		handle_mirrored->SetHeight(handleHeight);
 		handle->SetHeight(handleHeight);
 
-		handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-		handle_mirrored->SetHeight(handleHeight);
+		updateHeights();
 	}
 
 	if (handleThickness != handle->GetThickness())
@@ -134,20 +129,18 @@ bool App1::frame()
 
 	if (handleWidth != handle->GetWidth())
 	{
-		handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		handle->SetWidth(handleWidth);
-
-		handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		handle_mirrored->SetWidth(handleWidth);
+
+		updateWidth();
 	}
 
 	if (pommelHeight != pommel->GetHeight())
 	{
-		pommel->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		pommel_mirrored->SetHeight(pommelHeight);
 		pommel->SetHeight(pommelHeight);
 
-		pommel_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-		pommel_mirrored->SetHeight(pommelHeight);
+		updateHeights();
 	}
 
 	if (pommelThickness != pommel->GetThickness())
@@ -161,51 +154,13 @@ bool App1::frame()
 
 	if (pommelWidth != pommel->GetWidth())
 	{
-		pommel->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		pommel->SetWidth(pommelWidth);
-
-		pommel_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 		pommel_mirrored->SetWidth(pommelWidth);
+
+		updateWidth();
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
 
 
 	result = BaseApplication::frame();
@@ -297,28 +252,98 @@ void App1::gui()
 	ImGui::SliderFloat("Blade Width", &bladeWidth, 5, 75);
 	ImGui::SliderFloat("Blade Thickness", &bladeThickness, 0, 10);
 
-	ImGui::SliderFloat("Guard Height", &guardHeight, 25, 175);
-	ImGui::SliderFloat("Guard Width", &guardWidth, 5, 75);
-	ImGui::SliderFloat("Guard Thickness", &guardThickness, 0, 10);
+	ImGui::SliderFloat("Guard Height", &guardHeight, 5, 20);
+
+	ImGui::SliderFloat("Guard Width", &guardWidth, handleWidth, (handleWidth*2.5));
+	if (guardWidth < handleWidth)
+	{
+		guard->SetWidth(handleWidth);
+		guard_mirrored->SetWidth(handleWidth);
+		guardWidth = guard->GetWidth();
+
+		guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	}
+	if (guardWidth > (handleWidth * 2.5))
+	{
+		guard->SetWidth(handleWidth * 2.5);
+		guard_mirrored->SetWidth(handleWidth * 2.5);
+		guardWidth = guard->GetWidth();
+
+		guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+
+	}
+
+	ImGui::SliderFloat("Guard Thickness", &guardThickness, handleThickness,(handleThickness * 2.5));
 
 	ImGui::SliderFloat("Handle Height", &handleHeight, 25, 175);
 	ImGui::SliderFloat("Handle Width", &handleWidth, 5, 75);
 	ImGui::SliderFloat("Handle Thickness", &handleThickness, 0, 10);
 
-	ImGui::SliderFloat("Pommel Height", &pommelHeight, 25, 175);
-	ImGui::SliderFloat("Pommel Width", &pommelWidth, 5, 75);
-	ImGui::SliderFloat("Pommel Thickness", &pommelThickness, 0, 10);
+
+
+	ImGui::SliderFloat("Pommel Height", &pommelHeight, (handleWidth/1.5), (handleWidth*1.5));
+	if (pommelHeight < handleWidth/1.5)
+	{
+		pommel->SetHeight(handleWidth/1.5);
+		pommel_mirrored->SetHeight(handleWidth/1.5);
+		pommelHeight = pommel->GetHeight();
+
+		updateHeights();
+	}
+	if (pommelHeight > (handleWidth * 1.5))
+	{
+		pommel->SetHeight((handleWidth *1.5));
+		pommel_mirrored->SetHeight((handleWidth *1.5));
+		pommelHeight = pommel->GetHeight();
+
+		updateHeights();
+	}
+
+	ImGui::SliderFloat("Pommel Width", &pommelWidth, (handleWidth/1.5),(handleWidth*1.5));
+	if (pommelWidth < (handleWidth / 1.5))
+	{
+		pommel->SetWidth(handleWidth / 1.5);
+		pommel_mirrored->SetWidth(handleWidth / 1.5);
+		pommelWidth = pommel->GetWidth();
+
+		updateWidth();
+	}
+	if (pommelHeight > (handleWidth * 1.5))
+	{
+		pommel->SetWidth((handleWidth * 1.5));
+		pommel_mirrored->SetWidth((handleWidth * 1.5));
+		pommelWidth = pommel->GetWidth();
+
+		updateWidth();
+
+	}
+
+
+
+	ImGui::SliderFloat("Pommel Thickness", &pommelThickness, (handleThickness/2), (handleThickness*1.5));
 
 	if( ImGui::Button( "Regenerate Terrain" ) ) {
 		if( terrainResolution != blade->GetResolution() ) {
 			blade->Resize( terrainResolution );
 			blade_mirrored->Resize(terrainResolution);
+			guard->Resize(terrainResolution);
+			guard_mirrored->Resize(terrainResolution);
+			handle->Resize(terrainResolution);
+			handle_mirrored->Resize(terrainResolution);
+			pommel->Resize(terrainResolution);
+			pommel_mirrored->Resize(terrainResolution);
 		}
 		blade->Regenerate( renderer->getDevice(), renderer->getDeviceContext() );
 		blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		pommel->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+		pommel_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 	}
-
-
 
 	ImGui:
 	// Render UI
@@ -332,7 +357,7 @@ void App1::initValues()
 	light->setDiffuseColour(0.75f, 0.75f, 0.75f, 1.0f);
 	light->setDirection(1.0f, -0.0f, 0.0f);
 
-	camera->setPosition(-70.0f, 10.0f, 0.0f);
+	camera->setPosition(-70.0f, 30.0f, 0.0f);
 	camera->setRotation(0.0f, 90.0f, 2.5f);
 
 	terrainResolution = blade->GetResolution();
@@ -347,49 +372,89 @@ void App1::initValues()
 	guardThickness = guard->GetThickness();
 	guardWidth = guard->GetWidth();
 
-	guard->SetOffsetY(-15);
-	guard_mirrored->SetOffsetY(-15);
-
 	handle_mirrored->setMirrored(true);
 	handleHeight = handle ->GetHeight();
 	handleThickness = handle->GetThickness();
 	handleWidth = handle->GetWidth();
-
-	handle->SetOffsetY(-30);
-	handle_mirrored->SetOffsetY(-30);
 
 	pommel_mirrored->setMirrored(true);
 	pommelHeight = pommel->GetHeight();
 	pommelThickness = pommel->GetThickness();
 	pommelWidth = pommel->GetWidth();
 
-	pommel->SetOffsetY(-45);
-	pommel_mirrored->SetOffsetY(-45);
+	
 
 	/////////////////////////////////////////////
 
 	blade->Resize(terrainResolution);
 	blade_mirrored->Resize(terrainResolution);
-
-	blade->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-	blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-
 	guard->Resize(terrainResolution);
 	guard_mirrored->Resize(terrainResolution);
+	handle->Resize(terrainResolution);
+	handle_mirrored->Resize(terrainResolution);
+	pommel->Resize(terrainResolution);
+	pommel_mirrored->Resize(terrainResolution);
+
+	updateHeights();
+	updateWidth();
+}
+
+void App1::updateHeights()
+{
+	//Regenarate from bottom mesh to top mesh
+	//setting position offset from bottom mesh to top mesh
+
+	//pommel first
+	pommel->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	pommel_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	
+	//handle second
+	handle->SetOffsetY(pommel->GetDynamicHeight());
+	handle_mirrored->SetOffsetY(pommel->GetDynamicHeight());
+
+	handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+
+	//guard third
+	guard->SetOffsetY(pommel->GetDynamicHeight() + handle->GetDynamicHeight());
+	guard_mirrored->SetOffsetY(pommel->GetDynamicHeight() + handle->GetDynamicHeight());
 
 	guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 	guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 
-	handle->Resize(terrainResolution);
-	handle_mirrored->Resize(terrainResolution);
+	//blade last
+	blade->SetOffsetY(pommel->GetDynamicHeight() + handle->GetDynamicHeight() + guard->GetDynamicHeight());
+	blade_mirrored->SetOffsetY(pommel->GetDynamicHeight() + handle->GetDynamicHeight() + guard->GetDynamicHeight());
 
-	handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
-	handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	blade->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+}
 
-	pommel->Resize(terrainResolution);
-	pommel_mirrored->Resize(terrainResolution);
-
+void App1::updateWidth()
+{
 	pommel->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 	pommel_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
 
+	handle->SetOffsetZ(pommel->GetDynamicWidth());
+	handle_mirrored->SetOffsetZ(pommel->GetDynamicWidth());
+
+	handle_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	handle->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+
+	guard->SetOffsetZ(handle->GetDynamicWidth());
+	guard_mirrored->SetOffsetZ(handle->GetDynamicWidth());
+
+	guard->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	guard_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+
+	blade->SetOffsetZ(guard->GetDynamicWidth());
+	blade_mirrored->SetOffsetZ(guard->GetDynamicWidth());
+
+	blade->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+	blade_mirrored->Regenerate(renderer->getDevice(), renderer->getDeviceContext());
+
+}
+
+void App1::updateThickness()
+{
 }

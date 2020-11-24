@@ -94,33 +94,50 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale = terrainSize / (float)resolution;
+	float heightScale;
 
 	//Set up vertices
 	for( j = 0; j < ( resolution ); j++ ) {
+
+		//set the z position
+		positionZ = ((float)(j * (width / 100) * scale));
+
 		for( i = 0; i < ( resolution ); i++ ) {
-			positionY =  ((float)i * scale);
-			positionZ = ((float)( j ) * scale);
+
+			//set the y position
+			positionY = ((float)(i * (height / 100) * scale));
+			
+			//will inverse the heightmap depending on the boolean
 			if (mirrored == true)
 			{
 				positionX = heightMap[index];
-				vertices[index].position = XMFLOAT3(positionX, position_offsetY + (positionY * (height / 100)), position_offsetX + (positionZ * (width / 100)));
 			}
 			else
 			{
 				positionX = -heightMap[index];
-				vertices[index].position = XMFLOAT3(positionX, position_offsetY + (positionY * (height / 100)), position_offsetX + (positionZ * (width / 100)));
 			}
 
-			
+			//setting positon on certain variables
+			vertices[index].position = XMFLOAT3(positionX, (positionY + position_offsetY), positionZ );
+
+			//setting textures up with u,v coordinates
 			vertices[index].texture = XMFLOAT2( u, v );
 
+			//increment values
 			u += increment;
 			index++;
 		}
+
+		//increment values
 		u = 0;
 		v += increment;
 	}
 
+	//get the distance between the two furthest point
+	dynamic_height = (((float)((resolution - 1) * height / 100) * scale)) - (((float)(0 * height / 100) * scale));
+
+	dynamic_width = (((float)((resolution - 1) * width / 100) * scale)) - ((float)(0 * (width / 100) * scale));
+	//dynamic_width = (((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) > dynamic_width) ? ((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) : dynamic_width;
 	//Set up index list
 	index = 0;
 	for( j = 0; j < ( resolution - 1 ); j++ ) {

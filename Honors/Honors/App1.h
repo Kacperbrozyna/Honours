@@ -23,6 +23,9 @@ protected:
 	bool render();
 	void gui();
 	void initValues();
+	void updateHeights();
+	void updateWidth();
+	void updateThickness();
 
 private:
 	LightShader* shader;
