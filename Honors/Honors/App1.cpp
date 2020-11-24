@@ -11,8 +11,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	textureMgr->loadTexture(L"grass", L"res/grass.png");	
-	textureMgr->loadTexture(L"white", L"res/DefaultDiffuse.png");
+	textureMgr->loadTexture(L"damascus", L"res/Damascus.png");	
+	textureMgr->loadTexture(L"bronze", L"res/Bronze.png");
+	textureMgr->loadTexture(L"leather", L"res/Leather.png");
 
 	// Create Mesh object and shader object
 	blade = new Blade(renderer->getDevice(), renderer->getDeviceContext());
@@ -195,35 +196,35 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	blade->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
 	shader->render(renderer->getDeviceContext(), blade->getIndexCount());
 
 	blade_mirrored->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
 	shader->render(renderer->getDeviceContext(), blade_mirrored->getIndexCount());
 
 	guard->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
 	shader->render(renderer->getDeviceContext(), guard->getIndexCount());
 
 	guard_mirrored->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
 	shader->render(renderer->getDeviceContext(), guard_mirrored->getIndexCount());
 
 	handle->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"leather"), light);
 	shader->render(renderer->getDeviceContext(), handle->getIndexCount());
 
 	handle_mirrored->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"leather"), light);
 	shader->render(renderer->getDeviceContext(), handle_mirrored->getIndexCount());
 
 	pommel->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
 	shader->render(renderer->getDeviceContext(), pommel->getIndexCount());
 
 	pommel_mirrored->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"grass"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
 	shader->render(renderer->getDeviceContext(), pommel_mirrored->getIndexCount());
 	
 	// Render GUI
