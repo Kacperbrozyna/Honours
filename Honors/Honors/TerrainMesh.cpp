@@ -6,22 +6,8 @@ TerrainMesh::TerrainMesh( ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	Resize( resolution );
 	Regenerate( device, deviceContext );
 	
-	for (int j = 0; j < (resolution); j++) {
-		for (int i = 0; i < (resolution); i++) {
-
-			if (j == 0 || i == 0 || i == resolution || j == resolution)
-			{
-				thickness = 0;
-				heightMap[(j * resolution) + i] = thickness;
-			}
-			else
-			{
-				thickness = 10;
-				heightMap[(j * resolution) + i] = thickness;
-			}	
-		}
-	}
 	mirrored = false;
+	blade = false;
 }
 
 //Cleanup the heightMap
@@ -47,8 +33,32 @@ void TerrainMesh::BuildEdges() {
 				heightMap[(j * resolution) + i] = 0;
 			}
 			else
-			{
-				heightMap[(j * resolution) + i] = thickness * scale;
+			{ 
+				if (blade)
+				{
+					if (offsetMap[(j * resolution) + i] >= 0)
+					{
+						if ((i > resolution - edge_offset || j < edge_offset || j > resolution - edge_offset))
+						{
+							heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i];
+						}
+						else
+						{
+							heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i]; 
+								float test;
+								test = heightMap[(j * resolution) + i];
+						}
+					}
+					else
+					{
+						heightMap[(j * resolution) + i] = thickness * scale; //offsetMap[(j * resolution) + i]
+					}
+	
+				}
+				else
+				{
+					heightMap[(j * resolution) + i] = thickness * scale;
+				}
 			}
 		}
 	}
@@ -57,6 +67,8 @@ void TerrainMesh::BuildEdges() {
 void TerrainMesh::Resize( int newResolution ) {
 	resolution = newResolution;
 	heightMap = new float[resolution * resolution];
+	offsetMap = new float[resolution * resolution];
+
 	if( vertexBuffer != NULL ) {
 		vertexBuffer->Release();
 	}
@@ -94,8 +106,7 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale = terrainSize / (float)resolution;
-	float heightScale;
-
+	
 	//Set up vertices
 	for( j = 0; j < ( resolution ); j++ ) {
 
@@ -107,7 +118,6 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 			//set the y position
 			positionY = ((float)(i * (height / 100) * scale));
 			
-			//will inverse the heightmap depending on the boolean
 			if (mirrored == true)
 			{
 				positionX = heightMap[index];
@@ -116,9 +126,17 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 			{
 				positionX = -heightMap[index];
 			}
-
-			//setting positon on certain variables
-			vertices[index].position = XMFLOAT3(positionX, (positionY + position_offsetY), positionZ );
+			
+			if (blade) 
+			{
+				XMFLOAT3 temp_blade_Offset = bladeOffset(j, i);
+				vertices[index].position = XMFLOAT3(positionX + temp_blade_Offset.x, (positionY + position_offsetY) + temp_blade_Offset.y, (positionZ + position_offsetZ) + temp_blade_Offset.z);
+			}
+			else
+			{
+				//setting positon on certain variables
+				vertices[index].position = XMFLOAT3(positionX , (positionY + position_offsetY), positionZ + position_offsetZ );
+			}
 
 			//setting textures up with u,v coordinates
 			vertices[index].texture = XMFLOAT2( u, v );
@@ -135,9 +153,9 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 
 	//get the distance between the two furthest point
 	dynamic_height = (((float)((resolution - 1) * height / 100) * scale)) - (((float)(0 * height / 100) * scale));
-
 	dynamic_width = (((float)((resolution - 1) * width / 100) * scale)) - ((float)(0 * (width / 100) * scale));
 	//dynamic_width = (((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) > dynamic_width) ? ((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) : dynamic_width;
+
 	//Set up index list
 	index = 0;
 	for( j = 0; j < ( resolution - 1 ); j++ ) {
@@ -315,4 +333,61 @@ void TerrainMesh::CreateBuffers( ID3D11Device* device, VertexType* vertices, uns
 
 	// Create the index buffer.
 	device->CreateBuffer( &indexBufferDesc, &indexData, &indexBuffer );
+}
+
+XMFLOAT3 TerrainMesh::bladeOffset(int x, int y)
+{
+	float tipOffset = pointHeight / resolution;
+	float blade_x_offset = 0;
+	float blade_y_offset = 0;
+	float blade_z_offset = 0;
+
+	if (pointHeight != 0)
+	{
+		float segment;
+		if (x < resolution / 2)
+		{
+			/*if (isCurve)
+			{
+				if (y == resolution - 1)
+				{
+					blade_y_offset = tipOffset * x;
+				}
+			}
+			else
+			{*/
+				blade_y_offset = ((resolution / 2) * ((tipOffset / 10) * x)) / resolution;
+				blade_y_offset = blade_y_offset * y;
+			//}
+
+		}
+		else
+		{
+			/*if (isCurve)
+			{
+				if (y == resolution - 1)
+				{
+					blade_y_offset = (tipOffset * resolution) - (tipOffset * x);
+				}
+			}
+			else
+			{*/
+				blade_y_offset = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * x)) / resolution);
+				blade_y_offset = blade_y_offset * y;
+			//}
+		}
+	}
+
+	if (isCurve)
+	{
+		blade_z_offset = pow(y, 2);
+		blade_z_offset = (blade_z_offset) / (resolution*curvature_value);
+
+		if (inverseCurve)
+		{
+			blade_z_offset = -blade_z_offset;
+		}
+	}
+
+	return XMFLOAT3(blade_x_offset, blade_y_offset, blade_z_offset);
 }

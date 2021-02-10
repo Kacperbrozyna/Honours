@@ -18,6 +18,7 @@ public:
 	void SetWidth(float Width) { width = Width; }
 
 	const inline float GetThickness() { return thickness;}
+
 	void SetThickness(float Thickness) { thickness = Thickness; }
 
 	void SetOffsetZ(float pos_OffsetZ) { position_offsetZ = pos_OffsetZ; }
@@ -27,17 +28,28 @@ public:
 	void setMirrored(bool Mirror) { mirrored = Mirror;}
 
 	const inline float GetDynamicHeight() { return dynamic_height; }
-
 	const inline float GetDynamicWidth() { return dynamic_width; }
+
+
+	int edge_offset;
+	bool blade, inverseCurve, isCurve;
+	float pointHeight;
+	float curvature_value;
+	const float terrainSize = 25.0f;		//What is the width and height of our terrain
+	float* heightMap;
+	float* offsetMap;
 
 private:
 
 	void CreateBuffers( ID3D11Device* device, VertexType* vertices, unsigned long* indices );
 	void BuildEdges();
 
+	XMFLOAT3 bladeOffset(int x, int y);
+
+
 	const float m_UVscale = 10.0f;			//Tile the UV map 10 times across the plane
-	const float terrainSize = 25.0f;		//What is the width and height of our terrain
-	float* heightMap;
+
+	
 	float height = 50, width =20, thickness = 2;
 	float position_offsetZ, position_offsetY;
 
