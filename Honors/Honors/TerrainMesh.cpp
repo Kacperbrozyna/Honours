@@ -16,17 +16,15 @@ TerrainMesh::~TerrainMesh() {
 	heightMap = 0;
 }
 
-
-//Fill an array of floats that represent the height values at each grid point.
-//Here we are producing a Sine wave along the X-axis
-void TerrainMesh::BuildEdges() {
-
+void TerrainMesh::BuildEdges() 
+{
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale =  terrainSize / (float)resolution;
 
-	for (int j = 0; j < (resolution); j++) {
-		for (int i = 0; i < (resolution); i++) {
-
+	for (int j = 0; j < (resolution); j++) 
+	{
+		for (int i = 0; i < (resolution); i++) 
+		{
 			if (j == 0 || i == 0 || i == (resolution - 1) || j == (resolution - 1))
 			{
 				
@@ -34,26 +32,9 @@ void TerrainMesh::BuildEdges() {
 			}
 			else
 			{ 
-				if (blade)
+				if (offsetMap[(j * resolution) + i] >= 0)
 				{
-					if (offsetMap[(j * resolution) + i] >= 0)
-					{
-						if ((i > resolution - edge_offset || j < edge_offset || j > resolution - edge_offset))
-						{
-							heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i];
-						}
-						else
-						{
-							heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i]; 
-								float test;
-								test = heightMap[(j * resolution) + i];
-						}
-					}
-					else
-					{
-						heightMap[(j * resolution) + i] = thickness * scale; //offsetMap[(j * resolution) + i]
-					}
-	
+					heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i];
 				}
 				else
 				{
@@ -107,16 +88,30 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale = terrainSize / (float)resolution;
 	
+	if (handle && meshLayers.size() > 0)
+	{
+		layer_div = resolution / (meshLayers.size() + 1);
+	}
+
 	//Set up vertices
 	for( j = 0; j < ( resolution ); j++ ) {
 
 		//set the z position
-		positionZ = ((float)(j * (width / 100) * scale));
+		if (pommel)
+		{
+			positionZ = ((float)(j * (width * 0.01) * scale));
+		}
+		else
+		{
+			positionZ = ((float)(j * (width / 100) * scale));
+		}
+
+		incremtn_test = 0;
 
 		for( i = 0; i < ( resolution ); i++ ) {
 
 			//set the y position
-			positionY = ((float)(i * (height / 100) * scale));
+			positionY = ((float)(i * (height * 0.01) * scale));
 			
 			if (mirrored == true)
 			{
@@ -127,17 +122,41 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 				positionX = -heightMap[index];
 			}
 			
-			if (blade) 
+			XMFLOAT3 temp_mesh_offset = specific_mesh_Offset(j, i);
+
+			if (pommel)
 			{
-				XMFLOAT3 temp_blade_Offset = bladeOffset(j, i);
-				vertices[index].position = XMFLOAT3(positionX + temp_blade_Offset.x, (positionY + position_offsetY) + temp_blade_Offset.y, (positionZ + position_offsetZ) + temp_blade_Offset.z);
+				pommel_increment = (length_top - length_base) / resolution;
+				if (length_base > length_top)
+				{
+					if (j < resolution / 2)
+					{
+						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (-pommel_increment * (i-resolution))) + temp_mesh_offset.z);
+					}
+					else
+					{
+						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (pommel_increment * (i-resolution))) + temp_mesh_offset.z);
+
+					}
+				}
+				else
+				{
+					if (j < resolution / 2)
+					{
+						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (-pommel_increment * i)) + temp_mesh_offset.z);
+					}
+					else
+					{
+						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (pommel_increment * i)) + temp_mesh_offset.z);
+
+					}
+				}
 			}
 			else
 			{
-				//setting positon on certain variables
-				vertices[index].position = XMFLOAT3(positionX , (positionY + position_offsetY), positionZ + position_offsetZ );
+				vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, (positionZ + position_offsetZ) + temp_mesh_offset.z);
 			}
-
+			
 			//setting textures up with u,v coordinates
 			vertices[index].texture = XMFLOAT2( u, v );
 
@@ -154,7 +173,6 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	//get the distance between the two furthest point
 	dynamic_height = (((float)((resolution - 1) * height / 100) * scale)) - (((float)(0 * height / 100) * scale));
 	dynamic_width = (((float)((resolution - 1) * width / 100) * scale)) - ((float)(0 * (width / 100) * scale));
-	//dynamic_width = (((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) > dynamic_width) ? ((float)(j * (width / 100) * scale)) - ((float)(0 * (width / 100) * scale)) : dynamic_width;
 
 	//Set up index list
 	index = 0;
@@ -299,7 +317,6 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 }
 
 //Create the vertex and index buffers that will be passed along to the graphics card for rendering
-//For CMP305, you don't need to worry so much about how or why yet, but notice the Vertex buffer is DYNAMIC here as we are changing the values often
 void TerrainMesh::CreateBuffers( ID3D11Device* device, VertexType* vertices, unsigned long* indices ) {
 
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
@@ -335,59 +352,184 @@ void TerrainMesh::CreateBuffers( ID3D11Device* device, VertexType* vertices, uns
 	device->CreateBuffer( &indexBufferDesc, &indexData, &indexBuffer );
 }
 
-XMFLOAT3 TerrainMesh::bladeOffset(int x, int y)
+XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 {
-	float tipOffset = pointHeight / resolution;
-	float blade_x_offset = 0;
-	float blade_y_offset = 0;
-	float blade_z_offset = 0;
-
-	if (pointHeight != 0)
+	if (blade)
 	{
-		float segment;
-		if (x < resolution / 2)
+		float tipOffset = pointHeight / resolution;
+		XMFLOAT3 blade_offset = XMFLOAT3(0,0,0);
+	
+		if (pointHeight != 0)
 		{
-			/*if (isCurve)
+			float segment;
+			if (x < resolution / 2)
 			{
-				if (y == resolution - 1)
-				{
-					blade_y_offset = tipOffset * x;
-				}
+				blade_offset.y = ((resolution / 2) * ((tipOffset / 10) * x)) / resolution;
+				blade_offset.y = blade_offset.y * y;
 			}
 			else
-			{*/
-				blade_y_offset = ((resolution / 2) * ((tipOffset / 10) * x)) / resolution;
-				blade_y_offset = blade_y_offset * y;
-			//}
+			{
+				blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * x)) / resolution);
+				blade_offset.y = blade_offset.y * y;
+			}
+		}
 
+		if (bezierCurve)
+		{
+			float temp_t = (float)y/(float)resolution;
+			blade_offset.z = 3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2];
+		}
+
+		return blade_offset;
+	}
+
+	else if (guard)
+	{
+		XMFLOAT3 guard_offset = XMFLOAT3(0, 0, 0);
+
+		if (bezierCurve)
+		{
+			if (x < resolution / 2)
+			{
+				if (bezierInverse)
+				{
+					float temp_t = (float)(x - resolution / 2) / (float)(resolution / 2);
+					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+				}
+				else
+				{
+					float temp_t = -(float)(x - resolution / 2) / (float)(resolution / 2);
+					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+				}
+			}
+			else if (x > resolution/2)
+			{
+				float temp_t = (float)(x - resolution / 2) / (float)(resolution / 2);
+				guard_offset.y = (pow(temp_t, 3) * bezierX[2]); 
+			}
+		}
+
+		return guard_offset;
+	}
+
+	else if (handle)
+	{
+		XMFLOAT3 handle_offset = XMFLOAT3(0, 0, 0);
+		if (meshLayers.size() > 0)
+		{
+			if (y == 0)
+			{
+				current_width = length_base;
+				target_width = meshLayers.at(0);
+				handle_increment = increment_update(current_width, target_width);
+			}
+
+			else if (y == resolution - 1)
+			{
+				current_width = length_top;
+				target_width = length_top;
+				handle_increment = increment_update(current_width, target_width);
+			}
+
+			else
+			{
+				for (int size = 0; size < meshLayers.size(); size++)
+				{
+					if (y == layer_div * (size + 1) && y < resolution)
+					{
+						current_width = target_width;
+						incremtn_test = -1;
+
+						if (size == (meshLayers.size() - 1))
+						{
+							target_width = length_top;
+							handle_increment = increment_update(current_width, target_width);
+						}
+						else
+						{
+							target_width = meshLayers.at(size + 1);
+							handle_increment = increment_update(current_width, target_width);
+						}
+
+						break;
+					}
+				}
+			}
+
+			if (x < resolution / 2)
+			{
+				handle_offset.z = ((-current_width / 2) - ((handle_increment * meshLayers.size()) * incremtn_test)) * (((float)(resolution - x) / (float)resolution));
+			}
+			else if (x > resolution/2 ) 
+			{
+				handle_offset.z = ((current_width / 2) + ((handle_increment * meshLayers.size()) * incremtn_test)) * (x / (float)resolution);
+			}
+		}
+
+		else
+		{
+			current_width = length_base;
+			target_width = length_top;
+
+			handle_increment = increment_update(current_width, target_width);
+
+			if (x < resolution / 2)
+			{
+				handle_offset.z = ((-current_width /2) - (handle_increment * y)) * (((float)(resolution - x) / (float)resolution));
+			}
+			else if(x > resolution/2)
+			{
+				handle_offset.z = ((current_width /2) + (handle_increment * y)) * (x / (float)resolution);
+			}
+		}
+
+		incremtn_test++;
+		return handle_offset;
+	}
+
+	else if (pommel)
+	{
+		XMFLOAT3 pommel_offset = XMFLOAT3 (0,0,0);
+		float temp_increment = (float)curve_degree / (float)resolution;
+
+		if (inverse_pommel_curve == false)
+		{
+			if (x < resolution / 2)
+			{
+				pommel_offset.z = -(sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * (resolution - x)));
+			}
+			else if (x > resolution / 2)
+			{
+				pommel_offset.z = sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * x);
+			}
 		}
 		else
 		{
-			/*if (isCurve)
+			if (x < resolution / 2)
 			{
-				if (y == resolution - 1)
-				{
-					blade_y_offset = (tipOffset * resolution) - (tipOffset * x);
-				}
+				pommel_offset.z = (sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * (resolution - x)));
 			}
-			else
-			{*/
-				blade_y_offset = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * x)) / resolution);
-				blade_y_offset = blade_y_offset * y;
-			//}
+			else if (x > resolution / 2)
+			{
+				pommel_offset.z = -sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * x);
+			}
 		}
+
+		return pommel_offset;
 	}
+	return XMFLOAT3(0,0,0);
+} 
 
-	if (isCurve)
-	{
-		blade_z_offset = pow(y, 2);
-		blade_z_offset = (blade_z_offset) / (resolution*curvature_value);
+float TerrainMesh::increment_update(float base, float target)
+{
+	float temp_increment;
 
-		if (inverseCurve)
-		{
-			blade_z_offset = -blade_z_offset;
-		}
-	}
+	temp_increment = ((((float)target / 2) - ((float)base / 2)) / (resolution));
 
-	return XMFLOAT3(blade_x_offset, blade_y_offset, blade_z_offset);
+	return temp_increment;
+}
+
+void TerrainMesh::addDamage()
+{
+
 }

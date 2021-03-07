@@ -10,7 +10,6 @@ public:
 
 	void edge_sharpness();
 	void fuller();
-	void smooth();
 
 	int fuller_base, fuller_height = GetHeight() / 2;
 	int fuller_width, num_fullers;

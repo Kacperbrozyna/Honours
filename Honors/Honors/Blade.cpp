@@ -1,6 +1,5 @@
 #include "Blade.h"
 
-#define PI 3.14159265
 
 Blade::Blade(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int resolution) : 
 	TerrainMesh(device, deviceContext, resolution)
@@ -57,7 +56,7 @@ void Blade::fuller()
 
 	if (fuller_width != 0)
 	{
-		float width_diff = float(fuller_width) /   GetWidth(); //float(resolution);
+		float width_diff = float(fuller_width) /   GetWidth(); 
 		float fuller_pos_x = resolution * width_diff;
 		float sin_increment = 180 / fuller_pos_x;
 		float temp_total_increment;
@@ -68,14 +67,10 @@ void Blade::fuller()
 
 			for (int j = (resolution / 2) - int(fuller_pos_x / 2); j < (resolution/2) + int(fuller_pos_x/2); j++)
 			{
-				float test = (sin((temp_total_increment * PI / 180))) * fuller_depth;
-				offsetMap[(j * resolution) + i] = GetThickness() * scale- test;
+				offsetMap[(j * resolution) + i] = GetThickness() * scale - ((sin((temp_total_increment * PI / 180))) * fuller_depth);
 				temp_total_increment += sin_increment;
 			}
 		}
 	}
 }
 
-void Blade::smooth()
-{
-}

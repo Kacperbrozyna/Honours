@@ -14,17 +14,17 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	textureMgr->loadTexture(L"leather", L"res/Leather.png");
 
 	// Create Mesh object and shader object
-	blade.normal_blade = new Blade(renderer->getDevice(), renderer->getDeviceContext());
-	blade.mirrored_blade = new Blade(renderer->getDevice(), renderer->getDeviceContext());
+	blade.blade_mesh = new Blade(renderer->getDevice(), renderer->getDeviceContext());
+	blade.mirrored_blade_mesh = new Blade(renderer->getDevice(), renderer->getDeviceContext());
 
-	guard.normal_guard = new Guard(renderer->getDevice(), renderer->getDeviceContext());
-	guard.mirrored_guard = new Guard(renderer->getDevice(), renderer->getDeviceContext());
+	guard.guard_mesh = new Guard(renderer->getDevice(), renderer->getDeviceContext());
+	guard.mirrored_guard_mesh = new Guard(renderer->getDevice(), renderer->getDeviceContext());
 
-	handle.normal_handle = new Handle(renderer->getDevice(), renderer->getDeviceContext());
-	handle.mirrored_handle = new Handle(renderer->getDevice(), renderer->getDeviceContext());
+	handle.handle_mesh = new Handle(renderer->getDevice(), renderer->getDeviceContext());
+	handle.mirrored_handle_mesh = new Handle(renderer->getDevice(), renderer->getDeviceContext());
 
-	pommel.normal_pommel = new Pommel(renderer->getDevice(), renderer->getDeviceContext());
-	pommel.mirrored_pommel = new Pommel(renderer->getDevice(), renderer->getDeviceContext());
+	pommel.pommel_mesh = new Pommel(renderer->getDevice(), renderer->getDeviceContext());
+	pommel.mirrored_pommel_mesh = new Pommel(renderer->getDevice(), renderer->getDeviceContext());
 
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
@@ -52,171 +52,284 @@ bool App1::frame()
 	bool result;
 
 
-	if (blade.bladeHeight != blade.normal_blade->GetHeight())
+	if (blade.blade_base_variables.height != blade.blade_mesh->GetHeight())
 	{
-		blade.mirrored_blade->SetHeight(blade.bladeHeight);
-		blade.normal_blade->SetHeight(blade.bladeHeight);
+		blade.mirrored_blade_mesh->SetHeight(blade.blade_base_variables.height);
+		blade.blade_mesh->SetHeight(blade.blade_base_variables.height);
 		updateHeights();
 	}
 
-	if (blade.bladeThickness != blade.normal_blade->GetThickness())
+	if (blade.blade_base_variables.thickness != blade.blade_mesh->GetThickness())
 	{
-		blade.normal_blade->SetThickness(blade.bladeThickness);
-		blade.mirrored_blade->SetThickness(blade.bladeThickness);
+		blade.blade_mesh->SetThickness(blade.blade_base_variables.thickness);
+		blade.mirrored_blade_mesh->SetThickness(blade.blade_base_variables.thickness);
 		blade.blade_edge();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.bladeWidth != blade.normal_blade->GetWidth())
+	if (blade.blade_base_variables.width != blade.blade_mesh->GetWidth())
 	{
-		blade.normal_blade->SetWidth(blade.bladeWidth);
-		blade.mirrored_blade->SetWidth(blade.bladeWidth);
+		blade.blade_mesh->SetWidth(blade.blade_base_variables.width);
+		blade.mirrored_blade_mesh->SetWidth(blade.blade_base_variables.width);
 		updateWidth();
 	}
 
-	if (guard.guardHeight != guard.normal_guard->GetHeight())
+	if (guard.guard_base_variables.height != guard.guard_mesh->GetHeight())
 	{
-		guard.mirrored_guard->SetHeight(guard.guardHeight);
-		guard.normal_guard->SetHeight(guard.guardHeight);
+		guard.mirrored_guard_mesh->SetHeight(guard.guard_base_variables.height);
+		guard.guard_mesh->SetHeight(guard.guard_base_variables.height);
 
 		updateHeights();
 	}
 
-	if (guard.guardThickness != guard.normal_guard->GetThickness())
+	if (guard.guard_base_variables.thickness != guard.guard_mesh->GetThickness())
 	{
-		guard.normal_guard->SetThickness(guard.guardThickness);
-		guard.mirrored_guard->SetThickness(guard.guardThickness);
+		guard.guard_mesh->SetThickness(guard.guard_base_variables.thickness);
+		guard.mirrored_guard_mesh->SetThickness(guard.guard_base_variables.thickness);
 		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (guard.guardWidth != guard.normal_guard->GetWidth())
+	if (guard.guard_base_variables.width != guard.guard_mesh->GetWidth())
 	{
-		guard.normal_guard->SetWidth(guard.guardWidth);
-		guard.mirrored_guard->SetWidth(guard.guardWidth);
+		guard.guard_mesh->SetWidth(guard.guard_base_variables.width);
+		guard.mirrored_guard_mesh->SetWidth(guard.guard_base_variables.width);
 
 		updateWidth();
 	}
 
-	if (handle.handleHeight != handle.normal_handle->GetHeight())
+	if (handle.handle_base_variables.height != handle.handle_mesh->GetHeight())
 	{
-		handle.mirrored_handle->SetHeight(handle.handleHeight);
-		handle.normal_handle->SetHeight(handle.handleHeight);
+		handle.mirrored_handle_mesh->SetHeight(handle.handle_base_variables.height);
+		handle.handle_mesh->SetHeight(handle.handle_base_variables.height);
 
 		updateHeights();
 	}
 
-	if (handle.handleThickness != handle.normal_handle->GetThickness())
+	if (handle.handle_base_variables.thickness != handle.handle_mesh->GetThickness())
 	{
-		handle.normal_handle->SetThickness(handle.handleThickness);
-		handle.mirrored_handle->SetThickness(handle.handleThickness);
+		handle.handle_mesh->SetThickness(handle.handle_base_variables.thickness);
+		handle.mirrored_handle_mesh->SetThickness(handle.handle_base_variables.thickness);
 		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (handle.handleWidth != handle.normal_handle->GetWidth())
+	if (handle.handle_base_variables.width != handle.handle_mesh->GetWidth())
 	{
-		handle.normal_handle->SetWidth(handle.handleWidth);
-		handle.mirrored_handle->SetWidth(handle.handleWidth);
+		handle.handle_mesh->SetWidth(handle.handle_base_variables.width);
+		handle.mirrored_handle_mesh->SetWidth(handle.handle_base_variables.width);
 
 		updateWidth();
 	}
 
-	if (pommel.pommelHeight != pommel.normal_pommel->GetHeight())
+	if (pommel.pommel_base_variables.height != pommel.pommel_mesh->GetHeight())
 	{
-		pommel.mirrored_pommel->SetHeight(pommel.pommelHeight);
-		pommel.normal_pommel->SetHeight(pommel.pommelHeight);
+		pommel.mirrored_pommel_mesh->SetHeight(pommel.pommel_base_variables.height);
+		pommel.pommel_mesh->SetHeight(pommel.pommel_base_variables.height);
 
 		updateHeights();
 	}
 
-	if (pommel.pommelThickness != pommel.normal_pommel->GetThickness())
+	if (pommel.pommel_base_variables.thickness != pommel.pommel_mesh->GetThickness())
 	{
-		pommel.normal_pommel->SetThickness(pommel.pommelThickness);
-		pommel.mirrored_pommel->SetThickness(pommel.pommelThickness);
+		pommel.pommel_mesh->SetThickness(pommel.pommel_base_variables.thickness);
+		pommel.mirrored_pommel_mesh->SetThickness(pommel.pommel_base_variables.thickness);
 		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (pommel.pommelWidth != pommel.normal_pommel->GetWidth())
+	if (pommel.pommel_base_variables.width != pommel.pommel_mesh->GetWidth())
 	{
-		pommel.normal_pommel->SetWidth(pommel.pommelWidth);
-		pommel.mirrored_pommel->SetWidth(pommel.pommelWidth);
+		pommel.pommel_mesh->SetWidth(pommel.pommel_base_variables.width);
+		pommel.mirrored_pommel_mesh->SetWidth(pommel.pommel_base_variables.width);
 
 		updateWidth();
 	}
 
-	if (blade.bladeTipHeight != blade.normal_blade->pointHeight)
+	if (blade.bladeTipHeight != blade.blade_mesh->pointHeight)
 	{
-		blade.normal_blade->pointHeight = blade.bladeTipHeight;
-		blade.mirrored_blade->pointHeight = blade.bladeTipHeight;
+		blade.blade_mesh->pointHeight = blade.bladeTipHeight;
+		blade.mirrored_blade_mesh->pointHeight = blade.bladeTipHeight;
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.isCurve != blade.normal_blade->isCurve)
+	if (blade.blade_bezier_variables.bezier_curve != blade.blade_mesh->bezierCurve)
 	{
-		blade.normal_blade->isCurve = blade.isCurve;
-		blade.mirrored_blade->isCurve = blade.isCurve;
+		blade.blade_mesh->bezierCurve = blade.blade_bezier_variables.bezier_curve;
+		blade.mirrored_blade_mesh->bezierCurve = blade.blade_bezier_variables.bezier_curve;
+		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.isCurve)
+	if (blade.edge_offset != blade.blade_mesh->edge_offset)
 	{
-		if (blade.Curvature != blade.normal_blade->curvature_value)
-		{
-			blade.normal_blade->curvature_value = blade.Curvature;
-			blade.mirrored_blade->curvature_value = blade.Curvature;
-			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
-		}
-
-		if (blade.inverseCurve != blade.normal_blade->inverseCurve)
-		{
-			blade.normal_blade->inverseCurve = blade.inverseCurve;
-			blade.mirrored_blade->inverseCurve = blade.inverseCurve;
-		}
-	}
-
-	if (blade.edge_offset != blade.normal_blade->edge_offset)
-	{
-		blade.normal_blade->edge_offset = blade.edge_offset;
-		blade.mirrored_blade->edge_offset = blade.edge_offset;
+		blade.blade_mesh->edge_offset = blade.edge_offset;
+		blade.mirrored_blade_mesh->edge_offset = blade.edge_offset;
 
 		blade.blade_edge();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.fuller_base != blade.normal_blade->fuller_base)
+	if (blade.blade_fuller_variables.fuller_base != blade.blade_mesh->fuller_base)
 	{
-		blade.normal_blade->fuller_base = blade.fuller_base;
-		blade.mirrored_blade->fuller_base = blade.fuller_base;
+		blade.blade_mesh->fuller_base = blade.blade_fuller_variables.fuller_base;
+		blade.mirrored_blade_mesh->fuller_base = blade.blade_fuller_variables.fuller_base;
 
 		blade.blade_fuller();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.fuller_height != blade.normal_blade->fuller_height)
+	if (blade.blade_fuller_variables.fuller_height != blade.blade_mesh->fuller_height)
 	{
-		blade.normal_blade->fuller_height = blade.fuller_height;
-		blade.mirrored_blade->fuller_height = blade.fuller_height;
+		blade.blade_mesh->fuller_height = blade.blade_fuller_variables.fuller_height;
+		blade.mirrored_blade_mesh->fuller_height = blade.blade_fuller_variables.fuller_height;
 
 		blade.blade_fuller();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.fuller_width != blade.normal_blade->fuller_width)
+	if (blade.blade_fuller_variables.fuller_width != blade.blade_mesh->fuller_width)
 	{
-		blade.normal_blade->fuller_width = blade.fuller_width;
-		blade.mirrored_blade->fuller_width = blade.fuller_width;
+		blade.blade_mesh->fuller_width = blade.blade_fuller_variables.fuller_width;
+		blade.mirrored_blade_mesh->fuller_width = blade.blade_fuller_variables.fuller_width;
 
 		blade.blade_fuller();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
-	if (blade.fuller_depth != blade.normal_blade->fuller_depth)
+	if (blade.blade_fuller_variables.fuller_depth!= blade.blade_mesh->fuller_depth)
 	{
-		blade.normal_blade->fuller_depth = blade.fuller_depth;
-		blade.mirrored_blade->fuller_depth = blade.fuller_depth;
+		blade.blade_mesh->fuller_depth = blade.blade_fuller_variables.fuller_depth;
+		blade.mirrored_blade_mesh->fuller_depth = blade.blade_fuller_variables.fuller_depth;
 
 		blade.blade_fuller();
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
+	if (guard.guard_curve_variables.Curvature!= guard.guard_mesh->curvature_value)
+	{
+		guard.guard_mesh->curvature_value = guard.guard_curve_variables.Curvature;
+		guard.mirrored_guard_mesh->curvature_value = guard.guard_curve_variables.Curvature;
+
+		guard.guard_curve();
+		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (handle.handle_curve_variables.Curvature != handle.handle_mesh->curvature_value)
+	{
+		handle.handle_mesh->curvature_value = handle.handle_curve_variables.Curvature;
+		handle.mirrored_handle_mesh->curvature_value = handle.handle_curve_variables.Curvature;
+
+		handle.handle_curve();
+		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (pommel.pommel_curve_variables_thickness.Curvature != pommel.pommel_mesh->curvature_value)
+	{
+		pommel.pommel_mesh->curvature_value = pommel.pommel_curve_variables_thickness.Curvature;
+		pommel.mirrored_pommel_mesh->curvature_value = pommel.pommel_curve_variables_thickness.Curvature;
+
+		pommel.pommel_curve();
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (guard.guard_curve_variables.inverseCurve != guard.guard_mesh->inverseCurve)
+	{
+		guard.guard_mesh->inverseCurve = guard.guard_curve_variables.inverseCurve;
+		guard.mirrored_guard_mesh->inverseCurve = guard.guard_curve_variables.inverseCurve;
+	}
+
+	if (pommel.pommel_curve_variables_thickness.inverseCurve != pommel.pommel_mesh->inverseCurve)
+	{
+		pommel.pommel_mesh->inverseCurve = pommel.pommel_curve_variables_thickness.inverseCurve;
+		pommel.mirrored_pommel_mesh->inverseCurve = pommel.pommel_curve_variables_thickness.inverseCurve;
+	}
+
+	if (handle.loft_variables.base_handle_width != handle.handle_mesh->length_base)
+	{
+		handle.handle_mesh->length_base = handle.loft_variables.base_handle_width;
+		handle.mirrored_handle_mesh->length_base = handle.loft_variables.base_handle_width;
+		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (handle.loft_variables.top_handle_width != handle.handle_mesh->length_base)
+	{
+		handle.handle_mesh->length_top = handle.loft_variables.top_handle_width;
+		handle.mirrored_handle_mesh->length_top = handle.loft_variables.top_handle_width;
+		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	for (int s = 0; s < handle.loft_variables.layers.size(); s++)
+	{
+		if (handle.loft_variables.layers.at(s) != handle.handle_mesh->meshLayers.at(s))
+		{
+			handle.handle_mesh->meshLayers.at(s) = handle.loft_variables.layers.at(s);
+			handle.mirrored_handle_mesh->meshLayers.at(s) = handle.loft_variables.layers.at(s);
+			handle.regen(renderer->getDevice(), renderer->getDeviceContext());
+		}
+	}
+
+	if (pommel.pommel_curve_variables_width.Curvature != pommel.pommel_mesh->pommel_point_curvature)
+	{
+		pommel.pommel_mesh->pommel_point_curvature = pommel.pommel_curve_variables_width.Curvature;
+		pommel.mirrored_pommel_mesh->pommel_point_curvature = pommel.pommel_curve_variables_width.Curvature;
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (pommel.pommel_curve_variables_width.inverseCurve != pommel.pommel_mesh->inverse_pommel_curve)
+	{
+		pommel.pommel_mesh->inverse_pommel_curve = pommel.pommel_curve_variables_width.inverseCurve;
+		pommel.mirrored_pommel_mesh->inverse_pommel_curve = pommel.pommel_curve_variables_width.inverseCurve;
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (pommel.bottom_width != pommel.pommel_mesh->length_base)
+	{
+		pommel.pommel_mesh->length_base = pommel.bottom_width;
+		pommel.mirrored_pommel_mesh->length_base = pommel.bottom_width;
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (pommel.top_width != pommel.pommel_mesh->length_top)
+	{
+		pommel.pommel_mesh->length_top = pommel.top_width;
+		pommel.mirrored_pommel_mesh->length_top = pommel.top_width;
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (pommel.curve_degree != pommel.pommel_mesh->curve_degree)
+	{
+		pommel.pommel_mesh->curve_degree = pommel.curve_degree;
+		pommel.mirrored_pommel_mesh->curve_degree = pommel.curve_degree;
+		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	for (int x = 0; x < 3; x++)
+	{
+		if (blade.blade_bezier_variables.bezier[x] != blade.blade_mesh->bezierX[x])
+		{
+			blade.blade_mesh->bezierX[x] = blade.blade_bezier_variables.bezier[x];
+			blade.mirrored_blade_mesh->bezierX[x] = blade.blade_bezier_variables.bezier[x];
+			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
+		}
+	}
+
+	if (guard.guard_bezier_variables.bezier_curve != guard.guard_mesh->bezierCurve)
+	{
+		guard.guard_mesh->bezierCurve = guard.guard_bezier_variables.bezier_curve;
+		guard.mirrored_guard_mesh->bezierCurve = guard.guard_bezier_variables.bezier_curve;
+		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (guard.bezier_inverse != guard.guard_mesh->bezierInverse)
+	{
+		guard.guard_mesh->bezierInverse = guard.bezier_inverse;
+		guard.mirrored_guard_mesh->bezierInverse = guard.bezier_inverse;
+		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
+
+	if (guard.guard_bezier_variables.bezier[2] != guard.guard_mesh->bezierX[2])
+	{
+		guard.guard_mesh->bezierX[2] = guard.guard_bezier_variables.bezier[2];
+		guard.mirrored_guard_mesh->bezierX[2] = guard.guard_bezier_variables.bezier[2];
+		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
+	}
 
 	result = BaseApplication::frame();
 	if (!result)
@@ -249,37 +362,37 @@ bool App1::render()
 	projectionMatrix = renderer->getProjectionMatrix();
 
 	// Send geometry data, set shader parameters, render object with shader
-	blade.normal_blade->sendData(renderer->getDeviceContext());
+	blade.blade_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
-	shader->render(renderer->getDeviceContext(), blade.normal_blade->getIndexCount());
+	shader->render(renderer->getDeviceContext(), blade.blade_mesh->getIndexCount());
 
-	blade.mirrored_blade->sendData(renderer->getDeviceContext());
+	blade.mirrored_blade_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
-	shader->render(renderer->getDeviceContext(), blade.mirrored_blade->getIndexCount());
+	shader->render(renderer->getDeviceContext(), blade.mirrored_blade_mesh->getIndexCount());
 
-	guard.normal_guard->sendData(renderer->getDeviceContext());
+	guard.guard_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-	shader->render(renderer->getDeviceContext(), guard.normal_guard->getIndexCount());
+	shader->render(renderer->getDeviceContext(), guard.guard_mesh->getIndexCount());
 
-	guard.mirrored_guard->sendData(renderer->getDeviceContext());
+	guard.mirrored_guard_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-	shader->render(renderer->getDeviceContext(), guard.mirrored_guard->getIndexCount());
+	shader->render(renderer->getDeviceContext(), guard.mirrored_guard_mesh->getIndexCount());
 
-	handle.normal_handle->sendData(renderer->getDeviceContext());
+	handle.handle_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"leather"), light);
-	shader->render(renderer->getDeviceContext(), handle.normal_handle->getIndexCount());
+	shader->render(renderer->getDeviceContext(), handle.handle_mesh->getIndexCount());
 
-	handle.mirrored_handle->sendData(renderer->getDeviceContext());
+	handle.mirrored_handle_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"leather"), light);
-	shader->render(renderer->getDeviceContext(), handle.mirrored_handle->getIndexCount());
+	shader->render(renderer->getDeviceContext(), handle.mirrored_handle_mesh->getIndexCount());
 
-	pommel.normal_pommel->sendData(renderer->getDeviceContext());
+	pommel.pommel_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-	shader->render(renderer->getDeviceContext(), pommel.normal_pommel->getIndexCount());
+	shader->render(renderer->getDeviceContext(), pommel.pommel_mesh->getIndexCount());
 
-	pommel.mirrored_pommel->sendData(renderer->getDeviceContext());
+	pommel.mirrored_pommel_mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-	shader->render(renderer->getDeviceContext(), pommel.mirrored_pommel->getIndexCount());
+	shader->render(renderer->getDeviceContext(), pommel.mirrored_pommel_mesh->getIndexCount());
 	
 	// Render GUI
 	gui();
@@ -299,92 +412,92 @@ void App1::gui()
 
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
-	ImGui::Text( "Camera Pos: (%.2f, %.2f, %.2f)", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z );
+	ImGui::Text("Camera Pos: (%.2f, %.2f, %.2f)", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
-	ImGui::SliderInt( "Weapon Resolution", &terrainResolution, 2, 1024 );
-	ImGui::SliderFloat("Blade Height", &blade.bladeHeight, 25, 175);
-	ImGui::SliderFloat("Blade Width", &blade.bladeWidth, 5, 75);
-	ImGui::SliderFloat("Blade Thickness", &blade.bladeThickness, 0, 10);
+	ImGui::SliderInt("Weapon Resolution", &terrainResolution, 2, 1024);
+	ImGui::SliderFloat("Blade Height", &blade.blade_base_variables.height, 25, 175);
+	ImGui::SliderFloat("Blade Width", &blade.blade_base_variables.width, 5, 75);
+	ImGui::SliderFloat("Blade Thickness", &blade.blade_base_variables.thickness, 0, 10);
 
-	ImGui::SliderFloat("Guard Height", &guard.guardHeight, 5, 20);
+	ImGui::SliderFloat("Guard Height", &guard.guard_base_variables.height, 5, 20);
 
-	ImGui::SliderFloat("Guard Width", &guard.guardWidth, handle.handleWidth, (handle.handleWidth*2.5));
+	ImGui::SliderFloat("Guard Width", &guard.guard_base_variables.width, 0, 250);
 
-	//if (guard.guardWidth < handle.handleWidth)
+	//if (guard.guard_base_variables.width < handle.handle_base_variables.width)
 	//{
-	//	guard.normal_guard->SetWidth(handle.handleWidth);
-	//	guard.mirrored_guard->SetWidth(handle.handleWidth);
-	//	guard.guardWidth = guard.normal_guard->GetWidth();
+	//	guard.guard_mesh->SetWidth(handle.handle_base_variables.width);
+	//	guard.mirrored_guard_mesh->SetWidth(handle.handle_base_variables.width);
+	//	guard.guard_base_variables.width = guard.guard_mesh->GetWidth();
 	//	guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 	//}
-	//if (guard.guardWidth > (handle.handleWidth * 2.5))
+	//if (guard.guard_base_variables.width > (handle.handle_base_variables.width * 2.5))
 	//{
-	//	guard.normal_guard->SetWidth(handle.handleWidth * 2.5);
-	//	guard.mirrored_guard->SetWidth(handle.handleWidth * 2.5);
-	//	guard.guardWidth = guard.normal_guard->GetWidth();
+	//	guard.guard_mesh->SetWidth(handle.handle_base_variables.width * 2.5);
+	//	guard.mirrored_guard_mesh->SetWidth(handle.handle_base_variables.width * 2.5);
+	//	guard.guard_base_variables.width = guard.guard_mesh->GetWidth();
 	//	guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 	//}
 
-	ImGui::SliderFloat("Guard Thickness", &guard.guardThickness, handle.handleThickness,(handle.handleThickness * 2.5));
-	ImGui::SliderFloat("Handle Height", &handle.handleHeight, 25, 175);
-	ImGui::SliderFloat("Handle Width", &handle.handleWidth, 5, 75);
-	ImGui::SliderFloat("Handle Thickness", &handle.handleThickness, 0, 10);
+	ImGui::SliderFloat("Guard Thickness", &guard.guard_base_variables.thickness, handle.handle_base_variables.thickness, (handle.handle_base_variables.thickness * 2.5));
+	ImGui::SliderFloat("Handle Height", &handle.handle_base_variables.height, 25, 175);
+	ImGui::SliderFloat("Handle Width", &handle.handle_base_variables.width, 5, 75);
+	ImGui::SliderFloat("Handle Thickness", &handle.handle_base_variables.thickness, 0, 10);
 
 
 
-	ImGui::SliderFloat("Pommel Height", &pommel.pommelHeight, (handle.handleWidth/1.5), (handle.handleWidth*1.5));
-	/*if (pommel.pommelHeight < handle.handleWidth/1.5)
+	ImGui::SliderFloat("Pommel Height", &pommel.pommel_base_variables.height, (handle.handle_base_variables.width / 1.5), (handle.handle_base_variables.width * 1.5));
+	/*if (pommel.pommel_base_variables.height < handle.handle_base_variables.width/1.5)
 	{
-		pommel.normal_pommel->SetHeight(handle.handleWidth/1.5);
-		pommel.mirrored_pommel->SetHeight(handle.handleWidth/1.5);
-		pommel.pommelHeight = pommel.normal_pommel->GetHeight();
+		pommel.pommel_mesh->SetHeight(handle.handle_base_variables.width/1.5);
+		pommel.mirrored_pommel_mesh->SetHeight(handle.handle_base_variables.width/1.5);
+		pommel.pommel_base_variables.height = pommel.pommel_mesh->GetHeight();
 
 		updateHeights();
 	}
-	if (pommel.pommelHeight > (handle.handleWidth * 1.5))
+	if (pommel.pommel_base_variables.height > (handle.handle_base_variables.width * 1.5))
 	{
-		pommel.normal_pommel->SetHeight((handle.handleWidth *1.5));
-		pommel.mirrored_pommel->SetHeight((handle.handleWidth *1.5));
-		pommel.pommelHeight = pommel.normal_pommel->GetHeight();
+		pommel.pommel_mesh->SetHeight((handle.handle_base_variables.width *1.5));
+		pommel.mirrored_pommel_mesh->SetHeight((handle.handle_base_variables.width *1.5));
+		pommel.pommel_base_variables.height = pommel.pommel_mesh->GetHeight();
 
 		updateHeights();
 	}*/
 
-	ImGui::SliderFloat("Pommel Width", &pommel.pommelWidth, (handle.handleWidth/1.5),(handle.handleWidth*1.5));
-	//if (pommel.pommelWidth < (handle.handleWidth / 1.5))
+	ImGui::SliderFloat("Pommel Width", &pommel.pommel_base_variables.width, 0.1, (handle.handle_base_variables.width * 1.5));
+	//if (pommel.pommel_base_variables.width < (handle.handle_base_variables.width / 1.5))
 	//{
-	//	pommel.normal_pommel->SetWidth(handle.handleWidth / 1.5);
-	//	pommel.mirrored_pommel->SetWidth(handle.handleWidth / 1.5);
-	//	pommel.pommelWidth = pommel.normal_pommel->GetWidth();
+	//	pommel.pommel_mesh->SetWidth(handle.handle_base_variables.width / 1.5);
+	//	pommel.mirrored_pommel_mesh->SetWidth(handle.handle_base_variables.width / 1.5);
+	//	pommel.pommel_base_variables.width = pommel.pommel_mesh->GetWidth();
 
 	//	updateWidth();
 	//}
 
-	//if (pommel.pommelHeight > (handle.handleWidth * 1.5))
+	//if (pommel.pommel_base_variables.height > (handle.handle_base_variables.width * 1.5))
 	//{
-	//	pommel.normal_pommel->SetWidth((handle.handleWidth * 1.5));
-	//	pommel.mirrored_pommel->SetWidth((handle.handleWidth * 1.5));
-	//	pommel.pommelWidth = pommel.normal_pommel->GetWidth();
+	//	pommel.pommel_mesh->SetWidth((handle.handle_base_variables.width * 1.5));
+	//	pommel.mirrored_pommel_mesh->SetWidth((handle.handle_base_variables.width * 1.5));
+	//	pommel.pommel_base_variables.width = pommel.pommel_mesh->GetWidth();
 
 	//	updateWidth();
 
 	//}
 
-	ImGui::SliderFloat("Pommel Thickness", &pommel.pommelThickness, (handle.handleThickness/2), (handle.handleThickness*1.5));
+	ImGui::SliderFloat("Pommel Thickness", &pommel.pommel_base_variables.thickness, (handle.handle_base_variables.thickness / 2), (handle.handle_base_variables.thickness * 1.5));
 
-	if( ImGui::Button( "Regenerate Terrain" ) ) {
-		if( terrainResolution != blade.normal_blade->GetResolution() ) {
-			blade.normal_blade->Resize( terrainResolution );
-			blade.mirrored_blade->Resize(terrainResolution);
-			guard.normal_guard->Resize(terrainResolution);
-			guard.mirrored_guard->Resize(terrainResolution);
-			handle.normal_handle->Resize(terrainResolution);
-			handle.mirrored_handle->Resize(terrainResolution);
-			pommel.normal_pommel->Resize(terrainResolution);
-			pommel.mirrored_pommel->Resize(terrainResolution);
+	if (ImGui::Button("Regenerate Terrain")) {
+		if (terrainResolution != blade.blade_mesh->GetResolution()) {
+			blade.blade_mesh->Resize(terrainResolution);
+			blade.mirrored_blade_mesh->Resize(terrainResolution);
+			guard.guard_mesh->Resize(terrainResolution);
+			guard.mirrored_guard_mesh->Resize(terrainResolution);
+			handle.handle_mesh->Resize(terrainResolution);
+			handle.mirrored_handle_mesh->Resize(terrainResolution);
+			pommel.pommel_mesh->Resize(terrainResolution);
+			pommel.mirrored_pommel_mesh->Resize(terrainResolution);
 		}
-		
+
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
@@ -392,15 +505,82 @@ void App1::gui()
 	}
 
 	ImGui::SliderFloat("Tip Height", &blade.bladeTipHeight, 0, 5);
-	ImGui::SliderFloat("Blade Curvature", &blade.Curvature, terrainResolution/10, terrainResolution);
-	ImGui::Checkbox("Add Curve", &blade.isCurve);
-	ImGui::Checkbox("Inverse Curvature", &blade.inverseCurve);
-	ImGui::SliderInt("Blade Edge", &blade.edge_offset, 1, terrainResolution/2);
-	ImGui::SliderInt("Fuller Base", &blade.fuller_base, 0 , blade.normal_blade->GetHeight()*0.5);
-	ImGui::SliderInt("Fuller Height", &blade.fuller_height, terrainResolution*0.51, terrainResolution*0.8 );
-	ImGui::SliderInt("Fuller Width", &blade.fuller_width, 1, blade.normal_blade->GetWidth());
-	ImGui::SliderFloat("Fuller Depth", &blade.fuller_depth, 0.1, blade.normal_blade->GetThickness() * 0.25);
 
+	ImGui::Checkbox("Blade Curve", &blade.blade_bezier_variables.bezier_curve);
+
+	ImGui::SliderInt("Blade Edge", &blade.edge_offset, 1, terrainResolution / 2);
+
+	ImGui::SliderInt("Fuller Base", &blade.blade_fuller_variables.fuller_base, 0, blade.blade_mesh->GetHeight() * 0.5);
+	ImGui::SliderInt("Fuller Height", &blade.blade_fuller_variables.fuller_height, terrainResolution * 0.51, terrainResolution * 0.8);
+	ImGui::SliderInt("Fuller Width", &blade.blade_fuller_variables.fuller_width, 1, blade.blade_mesh->GetWidth());
+	ImGui::SliderFloat("Fuller Depth", &blade.blade_fuller_variables.fuller_depth, 0.1, blade.blade_mesh->GetThickness() * 0.25);
+
+	ImGui::SliderFloat("guard Curve", &guard.guard_curve_variables.Curvature, 0, 5);
+	ImGui::Checkbox("Inverse guard Curvature", &guard.guard_curve_variables.inverseCurve);
+
+	ImGui::SliderFloat("handle Curve", &handle.handle_curve_variables.Curvature, 0, 5);
+
+	ImGui::SliderFloat("pommel Curve", &pommel.pommel_curve_variables_thickness.Curvature, 0, 5);
+	ImGui::Checkbox("Inverse pommel Curvature", &pommel.pommel_curve_variables_thickness.inverseCurve);
+
+	ImGui::SliderInt("Base Handle Width", &handle.loft_variables.base_handle_width, 0, 5);
+	ImGui::SliderInt("Top Handle Width", &handle.loft_variables.top_handle_width, 0, 5);
+
+
+	ImGui::Text("Layers %i", handle.loft_variables.layers.size());
+
+	if (ImGui::ArrowButton("layers ", 0))
+	{
+		if (handle.loft_variables.layers.size() > 0)
+		{
+			handle.loft_variables.layers.pop_back();
+			handle.handle_mesh->meshLayers.pop_back();
+			handle.mirrored_handle_mesh->meshLayers.pop_back();
+		}
+	}
+	
+	ImGui::SameLine();
+
+	if (ImGui::ArrowButton("layers", 1))
+	{
+		if (handle.loft_variables.layers.size() < (terrainResolution - 1))
+		{
+			handle.loft_variables.layers.push_back(0);
+			handle.handle_mesh->meshLayers.push_back(0);
+			handle.mirrored_handle_mesh->meshLayers.push_back(0);
+		}
+	}
+
+	for (int s = 0; s < handle.loft_variables.layers.size(); s++)
+	{
+		ImGui::PushID(s);
+		ImGui::SliderInt("Layer", &handle.loft_variables.layers.at(s), 0, 5);
+		ImGui::SameLine();
+		ImGui::Text("%i", s);
+		ImGui::PopID();
+	}
+
+	ImGui::SliderFloat("Pommel Point Curve", &pommel.pommel_curve_variables_width.Curvature, 0, 5);
+	ImGui::Checkbox("Pommel Curve Inverse", &pommel.pommel_curve_variables_width.inverseCurve);
+	ImGui::SliderFloat("Pommel base width", &pommel.bottom_width, 0, 2 );
+	ImGui::SliderFloat("Pommel top width", &pommel.top_width, 0,2 );
+	ImGui::SliderInt("Curve Degree", &pommel.curve_degree, 0, 720);
+
+	for (int x = 0; x < 3; x++)
+	{
+		ImGui::PushID(x);
+		ImGui::SliderFloat("control point X", &blade.blade_bezier_variables.bezier[x], -5, 5);
+		ImGui::SameLine();
+		ImGui::Text("%i", x);
+		ImGui::PopID();
+	}
+
+
+	ImGui::Checkbox("Guard Curve", &guard.guard_bezier_variables.bezier_curve);
+	ImGui::Checkbox("Guard Curve Inverse", &guard.bezier_inverse);
+
+	ImGui::SliderFloat("control point Y", &guard.guard_bezier_variables.bezier[2], -5, 5);
+	
 	// Render UI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -415,38 +595,38 @@ void App1::initValues()
 	camera->setPosition(-70.0f, 30.0f, 0.0f);
 	camera->setRotation(0.0f, 90.0f, 2.5f);
 
-	terrainResolution = blade.normal_blade->GetResolution();
+	terrainResolution = blade.blade_mesh->GetResolution();
 
-	blade.mirrored_blade->setMirrored(true);
-	blade.bladeHeight = blade.normal_blade->GetHeight();
-	blade.bladeThickness = blade.normal_blade->GetThickness();
-	blade.bladeWidth = blade.normal_blade->GetWidth();
+	blade.mirrored_blade_mesh->setMirrored(true);
+	blade.blade_base_variables.height = blade.blade_mesh->GetHeight();
+	blade.blade_base_variables.thickness = blade.blade_mesh->GetThickness();
+	blade.blade_base_variables.width = blade.blade_mesh->GetWidth();
 	
-	guard.mirrored_guard->setMirrored(true);
-	guard.guardHeight = guard.normal_guard->GetHeight();
-	guard.guardThickness = guard.normal_guard->GetThickness();
-	guard.guardWidth = guard.normal_guard->GetWidth();
+	guard.mirrored_guard_mesh->setMirrored(true);
+	guard.guard_base_variables.height = guard.guard_mesh->GetHeight();
+	guard.guard_base_variables.thickness = guard.guard_mesh->GetThickness();
+	guard.guard_base_variables.width = guard.guard_mesh->GetWidth();
 
-	handle.normal_handle->setMirrored(true);
-	handle.handleHeight = handle.normal_handle ->GetHeight();
-	handle.handleThickness = handle.normal_handle->GetThickness();
-	handle.handleWidth = handle.normal_handle->GetWidth();
+	handle.handle_mesh->setMirrored(true);
+	handle.handle_base_variables.height = handle.handle_mesh ->GetHeight();
+	handle.handle_base_variables.thickness = handle.handle_mesh->GetThickness();
+	handle.handle_base_variables.width = handle.handle_mesh->GetWidth();
 
-	pommel.normal_pommel->setMirrored(true);
-	pommel.pommelHeight = pommel.normal_pommel->GetHeight();
-	pommel.pommelThickness = pommel.normal_pommel->GetThickness();
-	pommel.pommelWidth = pommel.normal_pommel->GetWidth();
+	pommel.pommel_mesh->setMirrored(true);
+	pommel.pommel_base_variables.height = pommel.pommel_mesh->GetHeight();
+	pommel.pommel_base_variables.thickness = pommel.pommel_mesh->GetThickness();
+	pommel.pommel_base_variables.width = pommel.pommel_mesh->GetWidth();
 
 	/////////////////////////////////////////////
 
-	blade.normal_blade->Resize(terrainResolution);
-	blade.mirrored_blade->Resize(terrainResolution);
-	guard.normal_guard->Resize(terrainResolution);
-	guard.mirrored_guard->Resize(terrainResolution);
-	handle.normal_handle->Resize(terrainResolution);
-	handle.mirrored_handle->Resize(terrainResolution);
-	pommel.normal_pommel->Resize(terrainResolution);
-	pommel.mirrored_pommel->Resize(terrainResolution);
+	blade.blade_mesh->Resize(terrainResolution);
+	blade.mirrored_blade_mesh->Resize(terrainResolution);
+	guard.guard_mesh->Resize(terrainResolution);
+	guard.mirrored_guard_mesh->Resize(terrainResolution);
+	handle.handle_mesh->Resize(terrainResolution);
+	handle.mirrored_handle_mesh->Resize(terrainResolution);
+	pommel.pommel_mesh->Resize(terrainResolution);
+	pommel.mirrored_pommel_mesh->Resize(terrainResolution);
 
 	updateHeights();
 	updateWidth();
@@ -461,18 +641,18 @@ void App1::updateHeights()
 	pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//handle second
-	handle.normal_handle->SetOffsetY(pommel.normal_pommel->GetDynamicHeight());
-	handle.mirrored_handle->SetOffsetY(pommel.normal_pommel->GetDynamicHeight());
+	handle.handle_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight());
+	handle.mirrored_handle_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight());
 	handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//guard third
-	guard.normal_guard->SetOffsetY(pommel.normal_pommel->GetDynamicHeight() + handle.normal_handle->GetDynamicHeight());
-	guard.mirrored_guard->SetOffsetY(pommel.normal_pommel->GetDynamicHeight() + handle.normal_handle->GetDynamicHeight());
+	guard.guard_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + handle.handle_mesh->GetDynamicHeight());
+	guard.mirrored_guard_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + handle.handle_mesh->GetDynamicHeight());
 	guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//blade last
-	blade.normal_blade->SetOffsetY(pommel.normal_pommel->GetDynamicHeight() + handle.normal_handle->GetDynamicHeight() + guard.normal_guard->GetDynamicHeight());
-	blade.mirrored_blade->SetOffsetY(pommel.normal_pommel->GetDynamicHeight() + handle.normal_handle->GetDynamicHeight() + guard.normal_guard->GetDynamicHeight());
+	blade.blade_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + handle.handle_mesh->GetDynamicHeight() + guard.guard_mesh->GetDynamicHeight());
+	blade.mirrored_blade_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + handle.handle_mesh->GetDynamicHeight() + guard.guard_mesh->GetDynamicHeight());
 	blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 }
 
@@ -482,18 +662,18 @@ void App1::updateWidth()
 	pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//regenerating handle mesh
-	handle.normal_handle->SetOffsetZ(pommel.normal_pommel->GetDynamicWidth()/2 - handle.normal_handle->GetDynamicWidth()/2);
-	handle.mirrored_handle->SetOffsetZ(pommel.normal_pommel->GetDynamicWidth() / 2 - handle.normal_handle->GetDynamicWidth() / 2);
+	handle.handle_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth()/2 - handle.handle_mesh->GetDynamicWidth()/2);
+	handle.mirrored_handle_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth() / 2 - handle.handle_mesh->GetDynamicWidth() / 2);
 	handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//regenerating guard mesh
-	guard.normal_guard->SetOffsetZ((pommel.normal_pommel->GetDynamicWidth() / 2 - guard.normal_guard->GetDynamicWidth()/2));
-	guard.mirrored_guard->SetOffsetZ(pommel.normal_pommel->GetDynamicWidth() / 2 - guard.normal_guard->GetDynamicWidth() / 2);
+	guard.guard_mesh->SetOffsetZ((pommel.pommel_mesh->GetDynamicWidth() / 2 - guard.guard_mesh->GetDynamicWidth()/2));
+	guard.mirrored_guard_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth() / 2 - guard.guard_mesh->GetDynamicWidth() / 2);
 	guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//regenerating blade mesh
-	blade.normal_blade->SetOffsetZ(pommel.normal_pommel->GetDynamicWidth()/2 - blade.normal_blade->GetDynamicWidth()/2);
-	blade.mirrored_blade->SetOffsetZ(pommel.normal_pommel->GetDynamicWidth() / 2 - blade.normal_blade->GetDynamicWidth() / 2);
+	blade.blade_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth()/2 - blade.blade_mesh->GetDynamicWidth()/2);
+	blade.mirrored_blade_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth() / 2 - blade.blade_mesh->GetDynamicWidth() / 2);
 	blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 }
 
