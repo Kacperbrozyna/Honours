@@ -1,6 +1,10 @@
 #pragma once
 #include "PlaneMesh.h"
 #include <vector>
+#include "Perlin.h"
+
+enum mesh_Type{BLADE, GUARD, GRIP, POMMEL};
+
 
 class TerrainMesh :
 	public PlaneMesh {
@@ -15,6 +19,51 @@ public:
 
 	const inline int GetResolution(){ return resolution; }
 
+	const inline int Get_edge_offset() { return edge_offset; }
+	void Set_edge_offset(int edgeOffset) { edge_offset = edgeOffset; }
+
+	const inline bool Get_inverse_curve() { return inverseCurve; }
+	void Set_inverse_curve(bool inverse_curve) { inverseCurve = inverse_curve; }
+
+	const inline bool Get_Iscurve() { return isCurve; }
+	void Set_Iscurve(bool is_curve) { isCurve = is_curve; }
+
+	const inline float Get_point_height() { return pointHeight; }
+	void Set_point_height(float point_height) { pointHeight = point_height; }
+
+	const inline float Get_curvature_value() { return curvature_value; }
+	void Set_curvature_value(float curvatureValue) { curvature_value = curvatureValue; }
+
+	const inline float Get_length_base() { return length_base; }
+	void Set_length_base(float lengthBase) { length_base = lengthBase; }
+
+	const inline float Get_length_top() { return length_top; }
+	void Set_length_top(float lengthTop) { length_top = lengthTop; }
+
+	const inline float Get_pommel_point_curvature() { return pommel_point_curvature; }
+	void Set_pommel_point_curvature(float pommelCurvature) { pommel_point_curvature = pommelCurvature; }
+
+	const inline float Get_onesided_width() { return oneSided_width; }
+	void Set_onesided_width(float onesided_Width) { oneSided_width = onesided_Width; }
+
+	const inline int Get_curve_degree() { return curve_degree; }
+	void Set_curve_degree(int curve_Degree) { curve_degree = curve_Degree; }
+
+	const inline bool Get_inverse_pommel_curve() { return inverse_pommel_curve; }
+	void Set_inverse_pommel_curve(bool inverse_pommelCurve) { inverse_pommel_curve = inverse_pommelCurve; }
+
+	const inline bool Get_bezier_curve() { return bezierCurve; }
+	void Set_bezier_curve(bool bezier_curve) { bezierCurve = bezier_curve; }
+
+	const inline bool Get_inverse_bezier_curve() { return bezierInverse; }
+	void Set_inverse_bezier_curve(bool inverse_bezierCurve) { bezierInverse = inverse_bezierCurve; }
+
+	const inline bool Get_oneSided() { return oneSided; }
+	void Set_oneSided(bool one_Sided) { oneSided = one_Sided; }
+
+	const inline bool Get_Symmetrical() { return symmterical; }
+	void Set_symmetrical(bool Symmetrical) { symmterical = Symmetrical; }
+
 	const inline float GetHeight() { return height; }
 	void SetHeight(float Height) { height = Height; }
 	
@@ -24,31 +73,25 @@ public:
 	const inline float GetThickness() { return thickness;}
 
 	void SetThickness(float Thickness) { thickness = Thickness; }
+
 	void SetOffsetZ(float pos_OffsetZ) { position_offsetZ = pos_OffsetZ; }
 	void SetOffsetY(float pos_OffsetY) { position_offsetY = pos_OffsetY; }
+
 	void setMirrored(bool Mirror) { mirrored = Mirror;}
 
-	void addDamage();
+	void addDamage_dents(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float Amplitude, float Frequency);
+	void addDamage_scrape(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	const inline float GetDynamicHeight() { return dynamic_height; }
 	const inline float GetDynamicWidth() { return dynamic_width; }
 
-
-	int edge_offset;
-	bool blade, guard, handle, pommel, inverseCurve, isCurve;
-	float pointHeight;
-	float curvature_value;
 	const float terrainSize = 25.0f;		//What is the width and height of our terrain
 	float* heightMap;
 	float* offsetMap;
 
 	std::vector<int> meshLayers;
-	float length_base, length_top;
-	float pommel_point_curvature; 
-	int curve_degree;
-	bool inverse_pommel_curve;
+	mesh_Type  meshType;
 	float bezierX[3];
-	bool bezierCurve, bezierInverse;
 
 private:
 
@@ -66,8 +109,12 @@ private:
 	float dynamic_height, dynamic_width;
 	bool mirrored;
 
-	float handle_increment, pommel_increment;
-	float current_width, target_width;
-	int layer_div;
+	int edge_offset;
+
+	bool inverseCurve, isCurve, inverse_pommel_curve, bezierCurve, bezierInverse, oneSided, symmterical;
+	float handle_increment, pommel_increment, pointHeight, curvature_value, length_base, length_top, pommel_point_curvature, oneSided_width, current_width, target_width;
+	int layer_div, curve_degree;;
 	int incremtn_test;
+
+	Perlin* perlin_noise;
 };

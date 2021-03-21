@@ -170,6 +170,7 @@
     <ClCompile Include="Handle.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="Pommel.cpp" />
     <ClCompile Include="TerrainMesh.cpp" />
   </ItemGroup>
@@ -179,6 +180,7 @@
     <ClInclude Include="Guard.h" />
     <ClInclude Include="Handle.h" />
     <ClInclude Include="LightShader.h" />
+    <ClInclude Include="Perlin.h" />
     <ClInclude Include="Pommel.h" />
     <ClInclude Include="TerrainMesh.h" />
   </ItemGroup>

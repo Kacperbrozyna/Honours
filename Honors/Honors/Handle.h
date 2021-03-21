@@ -8,5 +8,10 @@ public:
 
 	void handleMeshCurve();
 
+	const inline bool Get_x_dimension_curve() { return x_dimension_curve; }
+	void Set_x_dimension_curve(bool x_curve) { x_dimension_curve = x_curve; }
+
+private:
+	bool x_dimension_curve;
 };
 

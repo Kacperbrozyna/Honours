@@ -18,13 +18,20 @@ struct base_variables
 struct bezier_variables 
 {
 	float bezier[3];
-	bool bezier_curve;
+	bool bezier_curve, bezier_inverse;
+
 };
 
 struct fuller_variables
 {
 	int fuller_base, fuller_height, fuller_width;
 	float fuller_depth;
+};
+
+struct oneSided_variables
+{
+	bool oneSided;
+	float oneSided_width;
 };
 
 struct handle_loft_variables 
@@ -36,7 +43,7 @@ struct handle_loft_variables
 struct curve_variables
 {
 	float Curvature;
-	bool inverseCurve, isCurve;
+	bool inverseCurve, isCurve, x_dimension, y_dimension;
 };
 
 struct blade_manager
@@ -47,10 +54,12 @@ struct blade_manager
 	base_variables blade_base_variables;
 	fuller_variables blade_fuller_variables;
 	bezier_variables blade_bezier_variables;
+	oneSided_variables blade_oneSided_variables;
 	
 	float bladeTipHeight;
 	int edge_offset;
-	
+	bool symmetrical;
+
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
 		blade_mesh->Regenerate( device, deviceContext);
@@ -78,7 +87,8 @@ struct guard_manager
 	base_variables guard_base_variables;
 	curve_variables guard_curve_variables;
 	bezier_variables guard_bezier_variables;
-	bool bezier_inverse;
+	oneSided_variables guard_oneSided_variables;
+	
 
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -123,6 +133,7 @@ struct pommel_manager
 	base_variables pommel_base_variables;
 	curve_variables pommel_curve_variables_thickness;
 	curve_variables pommel_curve_variables_width;
+	oneSided_variables pommel_oneSided_variables;
 
 	float top_width, bottom_width;
 	int curve_degree;
@@ -166,6 +177,12 @@ private:
 	guard_manager guard;
 	handle_manager handle;
 	pommel_manager pommel;
+
+	int damage_iterations;
+	float Amplitude, Frequency;
+	float weaponThickness, lower_weapon_width, lower_weapon_height, lower_weapon_curve, blade_tip, blade_edge;
+	bool realistic_variables, detailed_UI, twoHanded;
+
 };
 
 #endif

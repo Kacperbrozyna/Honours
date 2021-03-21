@@ -6,8 +6,7 @@ TerrainMesh::TerrainMesh( ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	Resize( resolution );
 	Regenerate( device, deviceContext );
 	
-	mirrored = false;
-	blade = false;
+	perlin_noise = new Perlin;
 }
 
 //Cleanup the heightMap
@@ -21,23 +20,28 @@ void TerrainMesh::BuildEdges()
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale =  terrainSize / (float)resolution;
 
+	//looping through out the height map
 	for (int j = 0; j < (resolution); j++) 
 	{
 		for (int i = 0; i < (resolution); i++) 
 		{
+			//if the point is either edge set the value
 			if (j == 0 || i == 0 || i == (resolution - 1) || j == (resolution - 1))
 			{
-				
+				//setting value to 0
 				heightMap[(j * resolution) + i] = 0;
 			}
 			else
 			{ 
-				if (offsetMap[(j * resolution) + i] >= 0)
+				//if offset map has valid values
+				if (offsetMap[(j * resolution) + i] >= -1)
 				{
+					//setting heightmap to offset map
 					heightMap[(j * resolution) + i] = offsetMap[(j * resolution) + i];
 				}
 				else
 				{
+					//if the values are not valid 
 					heightMap[(j * resolution) + i] = thickness * scale;
 				}
 			}
@@ -88,8 +92,10 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	//Scale everything so that the look is consistent across terrain resolutions
 	const float scale = terrainSize / (float)resolution;
 	
-	if (handle && meshLayers.size() > 0)
+	//checking if the mesh is the Handle and the size of the vector is above 0
+	if (meshType == GRIP && meshLayers.size() > 0)
 	{
+		//setting the variable
 		layer_div = resolution / (meshLayers.size() + 1);
 	}
 
@@ -97,14 +103,7 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	for( j = 0; j < ( resolution ); j++ ) {
 
 		//set the z position
-		if (pommel)
-		{
-			positionZ = ((float)(j * (width * 0.01) * scale));
-		}
-		else
-		{
-			positionZ = ((float)(j * (width / 100) * scale));
-		}
+		positionZ = ((float)(j * (width / 100) * scale));
 
 		incremtn_test = 0;
 
@@ -113,6 +112,7 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 			//set the y position
 			positionY = ((float)(i * (height * 0.01) * scale));
 			
+			//depending if the mesh is mirrored inverse the values
 			if (mirrored == true)
 			{
 				positionX = heightMap[index];
@@ -122,40 +122,10 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 				positionX = -heightMap[index];
 			}
 			
+			//getting offset values depending on the mesh, values and points
 			XMFLOAT3 temp_mesh_offset = specific_mesh_Offset(j, i);
 
-			if (pommel)
-			{
-				pommel_increment = (length_top - length_base) / resolution;
-				if (length_base > length_top)
-				{
-					if (j < resolution / 2)
-					{
-						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (-pommel_increment * (i-resolution))) + temp_mesh_offset.z);
-					}
-					else
-					{
-						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (pommel_increment * (i-resolution))) + temp_mesh_offset.z);
-
-					}
-				}
-				else
-				{
-					if (j < resolution / 2)
-					{
-						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (-pommel_increment * i)) + temp_mesh_offset.z);
-					}
-					else
-					{
-						vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, ((positionZ + position_offsetZ) + (pommel_increment * i)) + temp_mesh_offset.z);
-
-					}
-				}
-			}
-			else
-			{
-				vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, (positionZ + position_offsetZ) + temp_mesh_offset.z);
-			}
+			vertices[index].position = XMFLOAT3(positionX + temp_mesh_offset.x, (positionY + position_offsetY) + temp_mesh_offset.y, (positionZ + position_offsetZ) + temp_mesh_offset.z);
 			
 			//setting textures up with u,v coordinates
 			vertices[index].texture = XMFLOAT2( u, v );
@@ -170,7 +140,7 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 		v += increment;
 	}
 
-	//get the distance between the two furthest point
+	//get the distance between the two furthest point to constrain the meshes to each other 
 	dynamic_height = (((float)((resolution - 1) * height / 100) * scale)) - (((float)(0 * height / 100) * scale));
 	dynamic_width = (((float)((resolution - 1) * width / 100) * scale)) - ((float)(0 * (width / 100) * scale));
 
@@ -354,65 +324,130 @@ void TerrainMesh::CreateBuffers( ID3D11Device* device, VertexType* vertices, uns
 
 XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 {
-	if (blade)
+	//if the mesh is the blade
+	if (meshType == BLADE)
 	{
+		//creating temporary variables
 		float tipOffset = pointHeight / resolution;
 		XMFLOAT3 blade_offset = XMFLOAT3(0,0,0);
 	
-		if (pointHeight != 0)
+		//if the tip of the blade is valid
+		if (pointHeight > 0)
 		{
-			float segment;
+			//if x is in the first half of the mesh
 			if (x < resolution / 2)
 			{
+				//apply offset with each y creating a bigger offset
 				blade_offset.y = ((resolution / 2) * ((tipOffset / 10) * x)) / resolution;
 				blade_offset.y = blade_offset.y * y;
 			}
 			else
 			{
-				blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * x)) / resolution);
-				blade_offset.y = blade_offset.y * y;
-			}
-		}
-
-		if (bezierCurve)
-		{
-			float temp_t = (float)y/(float)resolution;
-			blade_offset.z = 3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2];
-		}
-
-		return blade_offset;
-	}
-
-	else if (guard)
-	{
-		XMFLOAT3 guard_offset = XMFLOAT3(0, 0, 0);
-
-		if (bezierCurve)
-		{
-			if (x < resolution / 2)
-			{
-				if (bezierInverse)
+				//if the blade is onesided change the offset applied
+				if (oneSided)
 				{
-					float temp_t = (float)(x - resolution / 2) / (float)(resolution / 2);
-					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (resolution - x))) / resolution);
+					blade_offset.y = blade_offset.y * y;
 				}
 				else
 				{
-					float temp_t = -(float)(x - resolution / 2) / (float)(resolution / 2);
-					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (x))) / resolution);
+					blade_offset.y = blade_offset.y * y;
 				}
-			}
-			else if (x > resolution/2)
-			{
-				float temp_t = (float)(x - resolution / 2) / (float)(resolution / 2);
-				guard_offset.y = (pow(temp_t, 3) * bezierX[2]); 
 			}
 		}
 
+		//if the blade mesh has curve enabled
+		if (bezierCurve)
+		{
+			//set a temporary variable
+			float temp_t = (float)y / (float)resolution;
+			
+			//if the blade is not symmetrical 
+			if (symmterical == false)
+			{
+				//set the offset to 3rd degree bezier curve calculation
+				blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]);
+			}
+			else
+			{
+				//if the blade is onesided
+				if (oneSided)
+				{
+					//and the curve is inversed
+					if (bezierInverse)
+					{
+						//apply the offset one direction
+						blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x) / ((float)resolution));
+					}
+					else
+					{
+						//apply the offset the other direction
+						blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x - (float)resolution) / ((float)resolution));
+					}
+				}
+				else
+				{
+					//apply symmetrical offset
+					blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
+				}
+			}
+		}
+
+		//returning the offset;
+		return blade_offset;
+	}
+
+	//if the mesh is the guard
+	else if (meshType == GUARD)
+	{
+		//creating temp variable
+		XMFLOAT3 guard_offset = XMFLOAT3(0, 0, 0);
+		float temp_t = -(float)(x - resolution / 2) / (float)(resolution / 2);
+
+		//if the guard has curve enabled
+		if (bezierCurve)
+		{
+			//if x is within the first half of the mesh
+			if (x < resolution / 2)
+			{
+				//if its not onesided
+				if (oneSided == false)
+				{
+					//apply one degree bezier curve near the tip of the guard
+					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+				}
+				//if it is onesided
+				else
+				{
+					//needs work ///////////////////////////////////////////////////////
+					guard_offset.y = (pow(temp_t, 2.5) * (bezierX[2]*(oneSided_width/5)));
+					guard_offset.z = -(pow(temp_t, 1.5) * bezierX[2]) - ((oneSided_width / (resolution/2) * x));
+				}
+			}
+			//if in the other half
+			else if (x > resolution/2)
+			{
+				//if the curve is inversed
+				if (bezierInverse)
+				{
+					//apply one degree bezier offset
+					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+				}
+				else
+				{	
+					//applying negative offset
+					guard_offset.y = -(pow(temp_t, 3) * bezierX[2]);
+				}
+			}
+		}
+
+		//returning the offset
 		return guard_offset;
 	}
 
-	else if (handle)
+	//if the mesh is the handle
+	else if (meshType == GRIP)
 	{
 		XMFLOAT3 handle_offset = XMFLOAT3(0, 0, 0);
 		if (meshLayers.size() > 0)
@@ -458,11 +493,11 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 
 			if (x < resolution / 2)
 			{
-				handle_offset.z = ((-current_width / 2) - ((handle_increment * meshLayers.size()) * incremtn_test)) * (((float)(resolution - x) / (float)resolution));
+				handle_offset.z = ((-current_width / 2) - ((handle_increment * meshLayers.size()) * incremtn_test)) * -((x-(float)(resolution/2)) / ((float)resolution/2));
 			}
-			else if (x > resolution/2 ) 
+			else 
 			{
-				handle_offset.z = ((current_width / 2) + ((handle_increment * meshLayers.size()) * incremtn_test)) * (x / (float)resolution);
+				handle_offset.z = ((current_width / 2) + ((handle_increment * meshLayers.size()) * incremtn_test)) * ((x-(float)(resolution/2)) / ((float)resolution/2));
 			}
 		}
 
@@ -475,11 +510,11 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 
 			if (x < resolution / 2)
 			{
-				handle_offset.z = ((-current_width /2) - (handle_increment * y)) * (((float)(resolution - x) / (float)resolution));
+				handle_offset.z = ((-current_width /2) - (handle_increment * y)) * -((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 			else if(x > resolution/2)
 			{
-				handle_offset.z = ((current_width /2) + (handle_increment * y)) * (x / (float)resolution);
+				handle_offset.z = ((current_width /2) + (handle_increment * y)) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 		}
 
@@ -487,31 +522,34 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 		return handle_offset;
 	}
 
-	else if (pommel)
+	//if the mesh is the pommel
+	else if (meshType == POMMEL)
 	{
 		XMFLOAT3 pommel_offset = XMFLOAT3 (0,0,0);
 		float temp_increment = (float)curve_degree / (float)resolution;
+
+		pommel_increment = increment_update(length_base, length_top);
 
 		if (inverse_pommel_curve == false)
 		{
 			if (x < resolution / 2)
 			{
-				pommel_offset.z = -(sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * (resolution - x)));
+				pommel_offset.z = (((-length_base/2) - (pommel_increment * y)) - sin(((y * temp_increment) * PI / 180)) * pommel_point_curvature) * -((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 			else if (x > resolution / 2)
 			{
-				pommel_offset.z = sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * x);
+				pommel_offset.z = (((length_base/2) + (pommel_increment*y)) + sin(((y * temp_increment) * PI / 180)) * pommel_point_curvature) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 		}
 		else
 		{
 			if (x < resolution / 2)
 			{
-				pommel_offset.z = (sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * (resolution - x)));
+				pommel_offset.z = (((-length_base / 2) - (pommel_increment * y)) + sin(((y * temp_increment) * PI / 180)) * pommel_point_curvature )  * -((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 			else if (x > resolution / 2)
 			{
-				pommel_offset.z = -sin(((y * temp_increment) * PI / 180)) * ((pommel_point_curvature / (resolution / 2)) * x);
+				pommel_offset.z = (((length_base / 2) + (pommel_increment * y)) - sin(((y * temp_increment) * PI / 180)) * pommel_point_curvature) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 		}
 
@@ -520,6 +558,7 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 	return XMFLOAT3(0,0,0);
 } 
 
+//reuasble function to get incremental value
 float TerrainMesh::increment_update(float base, float target)
 {
 	float temp_increment;
@@ -529,7 +568,84 @@ float TerrainMesh::increment_update(float base, float target)
 	return temp_increment;
 }
 
-void TerrainMesh::addDamage()
+void TerrainMesh::addDamage_scrape(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+	//setting variables
+	XMFLOAT3 faultVector;
+	XMFLOAT3 crossProduct;
+	XMFLOAT3 targetVector;
 
+	int	randomX = rand() % resolution;
+	int	randomY = rand() % resolution;
+	int	randomX2 = rand() % resolution;
+	int	randomY2 = rand() % resolution;
+
+	//calculating the fault line vector
+	faultVector.x = randomX2 - randomX;
+	faultVector.y = randomY2 - randomY;
+	faultVector.z = heightMap[(randomY2 * resolution) + randomX2] - heightMap[(randomY * resolution) + randomX];
+
+	//loops all mesh positions 
+	for (int j = 0; j < (resolution); j++) {
+		for (int i = 0; i < (resolution); i++) {
+
+			//calculates cross product using the fault line vector and the target vector
+			targetVector.x = randomX - i;
+			targetVector.y = randomY - j;
+			targetVector.z = heightMap[(randomY * resolution) + randomX] - heightMap[(j * resolution) + i];
+
+			crossProduct.x = faultVector.y * targetVector.z - faultVector.z * targetVector.y;
+			crossProduct.y = faultVector.z * targetVector.x - faultVector.x * targetVector.z;
+			crossProduct.z = faultVector.x * targetVector.y - faultVector.y * targetVector.x;
+
+			//moves the point up or down depending on the magnitude
+			if (crossProduct.z > -0.1 && crossProduct.z < 0.1 )
+			{
+				offsetMap[(j * resolution) + i] -= 0.1;
+			}
+		}
+	}
+
+	Regenerate(device, deviceContext);
+}
+
+void TerrainMesh::addDamage_dents(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float Amplitude, float Frequency)
+{
+		//randomises the seeding the 
+		perlin_noise->RandomisePermutations(true);
+
+		float offset = rand() % 10000;
+		offset /= 33.3f;
+		float ampVar;
+		float freqVar;
+		float height;
+
+		//loops for all the points in the mesh
+		for (int j = 0; j < (resolution); j++)
+		{
+			for (int i = 0; i < (resolution); i++)
+
+			{
+				//resetting variables
+				ampVar = Amplitude;
+				freqVar = Frequency;
+				height = 0;
+
+		
+				//adds the extra height to the current height of the point in the height map
+				
+					height = (0.5f - perlin_noise->noise(offset + ((float)i) * freqVar, 0.0f, offset + ((float)j) * freqVar)) * ampVar;
+
+					if (height > 0)
+					{
+						if (offsetMap[(j * resolution) + i] > 0)
+						{
+							offsetMap[(j * resolution) + i] -= height;
+						}
+					}
+			}
+		}
+
+		//update the height map
+		Regenerate(device, deviceContext);
 }
