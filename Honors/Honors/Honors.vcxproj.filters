@@ -42,6 +42,9 @@
     <ClCompile Include="Perlin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Guard_Fingers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guard_Fingers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

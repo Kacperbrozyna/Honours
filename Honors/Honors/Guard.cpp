@@ -39,6 +39,10 @@ void Guard::guardMeshCurve()
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) - sin(((i * increment) * PI / 180)) * Get_curvature_value();
 				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+				}
 			}
 			else
 			{
@@ -49,10 +53,15 @@ void Guard::guardMeshCurve()
 				else if (x_dimension_curve)
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + (sin((temp_increment * PI / 180))) * Get_curvature_value();
+					float temp = GetThickness();
 				}
 				else if (y_dimension_curve)
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + sin(((i * increment) * PI / 180)) * Get_curvature_value();
+				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
 				}
 			}
 

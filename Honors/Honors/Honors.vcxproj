@@ -167,6 +167,7 @@
     <ClCompile Include="App1.cpp" />
     <ClCompile Include="Blade.cpp" />
     <ClCompile Include="Guard.cpp" />
+    <ClCompile Include="Guard_Fingers.cpp" />
     <ClCompile Include="Handle.cpp" />
     <ClCompile Include="LightShader.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="App1.h" />
     <ClInclude Include="Blade.h" />
     <ClInclude Include="Guard.h" />
+    <ClInclude Include="Guard_Fingers.h" />
     <ClInclude Include="Handle.h" />
     <ClInclude Include="LightShader.h" />
     <ClInclude Include="Perlin.h" />
@@ -187,9 +189,12 @@
   <ItemGroup>
     <FxCompile Include="shaders\light_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\light_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

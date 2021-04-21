@@ -38,12 +38,16 @@ void Pommel::pommelMeshCurve()
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) -  sin(((i * increment) * PI / 180)) * Get_curvature_value();
 				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+				}
 			}
 			else
 			{
 				if (x_dimension_curve && y_dimension_curve)
 				{
-					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((((sin((temp_increment * PI / 180))) + sin(((i * increment) * PI / 180))) / 2) * Get_curvature_value());
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((((sin((temp_increment * PI / 180)) * 0.5) + sin(((i * increment) * PI / 180)) * 0.5)) * Get_curvature_value());
 				}
 				else if (x_dimension_curve)
 				{
@@ -52,6 +56,10 @@ void Pommel::pommelMeshCurve()
 				else if (y_dimension_curve)
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + sin(((i * increment) * PI / 180)) * Get_curvature_value();
+				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
 				}
 			}
 

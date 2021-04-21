@@ -28,6 +28,10 @@ void Handle::handleMeshCurve()
 			{
 				offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((sin((temp_increment * PI / 180))) * Get_curvature_value());
 			}
+			else
+			{
+				offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+			}
 
 			//incrementing variable
 			temp_increment += increment;

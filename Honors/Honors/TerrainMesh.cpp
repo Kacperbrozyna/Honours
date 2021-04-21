@@ -96,7 +96,7 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 	if (meshType == GRIP && meshLayers.size() > 0)
 	{
 		//setting the variable
-		layer_div = resolution / (meshLayers.size() + 1);
+	
 	}
 
 	//Set up vertices
@@ -105,12 +105,12 @@ void TerrainMesh::Regenerate( ID3D11Device * device, ID3D11DeviceContext * devic
 		//set the z position
 		positionZ = ((float)(j * (width / 100) * scale));
 
-		incremtn_test = 0;
+	
 
 		for( i = 0; i < ( resolution ); i++ ) {
 
 			//set the y position
-			positionY = ((float)(i * (height * 0.01) * scale));
+			positionY = ((float)(i * (height / 100) * scale));
 			
 			//depending if the mesh is mirrored inverse the values
 			if (mirrored == true)
@@ -337,23 +337,23 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			//if x is in the first half of the mesh
 			if (x < resolution / 2)
 			{
-				//apply offset with each y creating a bigger offset
-				blade_offset.y = ((resolution / 2) * ((tipOffset / 10) * x)) / resolution;
-				blade_offset.y = blade_offset.y * y;
-			}
-			else
-			{
 				//if the blade is onesided change the offset applied
-				if (oneSided)
+				if (side_tip)
 				{
-					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (resolution - x))) / resolution);
+					
+					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (x))) / resolution);
 					blade_offset.y = blade_offset.y * y;
 				}
 				else
 				{
-					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (x))) / resolution);
+					blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (resolution - x))) / resolution);
 					blade_offset.y = blade_offset.y * y;
 				}
+			}
+			else
+			{
+				blade_offset.y = ((resolution / 2) * (((tipOffset / 10) * resolution) - ((tipOffset / 10) * (x))) / resolution);
+				blade_offset.y = blade_offset.y * y;
 			}
 		}
 
@@ -367,7 +367,7 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			if (symmterical == false)
 			{
 				//set the offset to 3rd degree bezier curve calculation
-				blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]);
+				blade_offset.z = (pow(1 - temp_t, 2) * bezierX[0] + 2 * (1 - temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]);
 			}
 			else
 			{
@@ -378,18 +378,18 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 					if (bezierInverse)
 					{
 						//apply the offset one direction
-						blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x) / ((float)resolution));
+						blade_offset.z = (pow(1 - temp_t, 2) * bezierX[0] + 2 * (1 - temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]) * ((x) / ((float)resolution));
 					}
 					else
 					{
 						//apply the offset the other direction
-						blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x - (float)resolution) / ((float)resolution));
+						blade_offset.z = (pow(1 - temp_t, 2) * bezierX[0] + 2 * (1 - temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]) * ((x - (float)resolution) / ((float)resolution));
 					}
 				}
 				else
 				{
 					//apply symmetrical offset
-					blade_offset.z = (3 * temp_t * pow(1 - temp_t, 2) * bezierX[0] + 3 * pow(temp_t, 2) * (1 - temp_t) * bezierX[1] + pow(temp_t, 3) * bezierX[2]) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
+					blade_offset.z = ( pow(1 - temp_t, 2) * bezierX[0] + 2 * (1-temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
 				}
 			}
 		}
@@ -411,19 +411,9 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			//if x is within the first half of the mesh
 			if (x < resolution / 2)
 			{
-				//if its not onesided
-				if (oneSided == false)
-				{
-					//apply one degree bezier curve near the tip of the guard
-					guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
-				}
-				//if it is onesided
-				else
-				{
-					//needs work ///////////////////////////////////////////////////////
-					guard_offset.y = (pow(temp_t, 2.5) * (bezierX[2]*(oneSided_width/5)));
-					guard_offset.z = -(pow(temp_t, 1.5) * bezierX[2]) - ((oneSided_width / (resolution/2) * x));
-				}
+				//apply one degree bezier curve near the tip of the guard
+				guard_offset.y = (pow(temp_t, 3) * bezierX[2]);
+			
 			}
 			//if in the other half
 			else if (x > resolution/2)
@@ -442,65 +432,95 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			}
 		}
 
+
+
 		//returning the offset
 		return guard_offset;
+	}
+
+	else if(meshType == GUARD_FINGERS)
+	{
+		XMFLOAT3 guard_finger_offset = XMFLOAT3(0, 0, 0);
+
+		float temp_t = (float)y / (float)resolution;
+
+		//if the guard has curve enabled
+		if (bezierCurve)
+		{
+			guard_finger_offset.z = (pow(1 - temp_t, 2) * bezierX[0] + 2 * (1 - temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]);
+		}
+
+		current_width = length_base;
+		target_width = length_top;
+
+		fingerguard_increment = increment_update(current_width, target_width);
+
+		if (x == 0 || y == 0 || x == (resolution - 1) || y == (resolution - 1))
+		{
+			guard_finger_offset.x == 0;
+		}
+		else if (mirrored)
+		{
+			if (fingerguard_increment >= 0)
+			{
+				guard_finger_offset.x = (fingerguard_increment * y);
+			}
+			else
+			{
+				guard_finger_offset.x = (fingerguard_increment * (y - resolution));
+			}
+		}
+		else
+		{
+			if (fingerguard_increment >= 0)
+			{
+				guard_finger_offset.x = - (fingerguard_increment * y);
+			}
+			else
+			{
+				guard_finger_offset.x = - (fingerguard_increment * (y -resolution));
+			}
+		}
+
+		return guard_finger_offset;
 	}
 
 	//if the mesh is the handle
 	else if (meshType == GRIP)
 	{
+		
 		XMFLOAT3 handle_offset = XMFLOAT3(0, 0, 0);
 		if (meshLayers.size() > 0)
 		{
-			if (y == 0)
-			{
-				current_width = length_base;
-				target_width = meshLayers.at(0);
-				handle_increment = increment_update(current_width, target_width);
-			}
+			float temp_t = (float)y / (float)resolution;
+			increment = 1;
+			loft.clear();
 
-			else if (y == resolution - 1)
+			loft.push_back(length_base);
+			for (int s = 0; s < meshLayers.size(); s++)
 			{
-				current_width = length_top;
-				target_width = length_top;
-				handle_increment = increment_update(current_width, target_width);
+				loft.push_back(meshLayers.at(s));
 			}
+			loft.push_back(length_top);
 
-			else
+			for (int cp = 0; cp < loft.size(); cp++)
 			{
-				for (int size = 0; size < meshLayers.size(); size++)
+				for (int i = 0; i < (loft.size() - increment); i++)
 				{
-					if (y == layer_div * (size + 1) && y < resolution)
-					{
-						current_width = target_width;
-						incremtn_test = -1;
-
-						if (size == (meshLayers.size() - 1))
-						{
-							target_width = length_top;
-							handle_increment = increment_update(current_width, target_width);
-						}
-						else
-						{
-							target_width = meshLayers.at(size + 1);
-							handle_increment = increment_update(current_width, target_width);
-						}
-
-						break;
-					}
+					loft.at(i) = ((1 - temp_t) * loft.at(i)) + (temp_t * loft.at(i + 1));
 				}
+				increment++;
 			}
 
 			if (x < resolution / 2)
 			{
-				handle_offset.z = ((-current_width / 2) - ((handle_increment * meshLayers.size()) * incremtn_test)) * -((x-(float)(resolution/2)) / ((float)resolution/2));
+				handle_offset.z = -loft.at(0) * (((float)(resolution / 2) - x) / ((float)resolution / 2));
 			}
-			else 
+			else
 			{
-				handle_offset.z = ((current_width / 2) + ((handle_increment * meshLayers.size()) * incremtn_test)) * ((x-(float)(resolution/2)) / ((float)resolution/2));
+				handle_offset.z = loft.at(0) * ((x - (float)(resolution / 2)) / ((float)resolution / 2));
 			}
 		}
-
 		else
 		{
 			current_width = length_base;
@@ -518,7 +538,6 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			}
 		}
 
-		incremtn_test++;
 		return handle_offset;
 	}
 
@@ -601,7 +620,7 @@ void TerrainMesh::addDamage_scrape(ID3D11Device* device, ID3D11DeviceContext* de
 			//moves the point up or down depending on the magnitude
 			if (crossProduct.z > -0.1 && crossProduct.z < 0.1 )
 			{
-				offsetMap[(j * resolution) + i] -= 0.1;
+				offsetMap[(j * resolution) + i] -= 0.25;
 			}
 		}
 	}

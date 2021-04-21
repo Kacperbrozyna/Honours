@@ -9,6 +9,7 @@
 #include "Pommel.h"
 #include "Handle.h"
 #include "Guard.h"
+#include "Guard_Fingers.h"
 
 struct base_variables
 {
@@ -26,6 +27,7 @@ struct fuller_variables
 {
 	int fuller_base, fuller_height, fuller_width;
 	float fuller_depth;
+	bool fuller;
 };
 
 struct oneSided_variables
@@ -34,9 +36,9 @@ struct oneSided_variables
 	float oneSided_width;
 };
 
-struct handle_loft_variables 
+struct loft_variables 
 {
-	int base_handle_width, top_handle_width;
+	float base_width, top_width;
 	std::vector<int> layers;
 };
 
@@ -58,7 +60,7 @@ struct blade_manager
 	
 	float bladeTipHeight;
 	int edge_offset;
-	bool symmetrical;
+	bool symmetrical, sideTip, tip_edge;
 
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -74,7 +76,7 @@ struct blade_manager
 
 	void blade_fuller()
 	{
-		blade_mesh->fuller();
+		blade_mesh->build_fuller();
 		mirrored_blade_mesh->offsetMap = blade_mesh->offsetMap;
 	};
 };
@@ -84,11 +86,20 @@ struct guard_manager
 	Guard* guard_mesh;
 	Guard* mirrored_guard_mesh;
 
+	Guard_Fingers* guard_finger_mesh;
+	Guard_Fingers* guard_finger_mirrored_mesh;
+
 	base_variables guard_base_variables;
 	curve_variables guard_curve_variables;
 	bezier_variables guard_bezier_variables;
-	oneSided_variables guard_oneSided_variables;
-	
+
+	base_variables guard_finger_base_variables;
+	curve_variables guard_finger_curve_variables;
+	bezier_variables guard_finger_bezier_variables;
+	loft_variables guard_finger_loft_variables;
+
+	bool fingerGuard;
+	XMFLOAT2 finger_guard_offset;
 
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -96,10 +107,22 @@ struct guard_manager
 		mirrored_guard_mesh->Regenerate(device, deviceContext);
 	};
 
+	void finger_regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+	{
+		guard_finger_mesh->Regenerate(device, deviceContext);
+		guard_finger_mirrored_mesh->Regenerate(device, deviceContext);
+	};
+
 	void guard_curve()
 	{
 		guard_mesh->guardMeshCurve();
 		mirrored_guard_mesh->offsetMap = guard_mesh->offsetMap;
+	}
+
+	void finger_guard_curve()
+	{
+		guard_finger_mesh->guardMeshCurve();
+		guard_finger_mirrored_mesh->offsetMap = guard_finger_mesh->offsetMap;
 	}
 };
 
@@ -110,7 +133,7 @@ struct handle_manager
 
 	base_variables handle_base_variables;
 	curve_variables handle_curve_variables;
-	handle_loft_variables loft_variables;
+	loft_variables handle_loft_variables;
 
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -133,10 +156,10 @@ struct pommel_manager
 	base_variables pommel_base_variables;
 	curve_variables pommel_curve_variables_thickness;
 	curve_variables pommel_curve_variables_width;
-	oneSided_variables pommel_oneSided_variables;
+	loft_variables pommel_loft_variables;
 
-	float top_width, bottom_width;
 	int curve_degree;
+	bool pommel;
 
 	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -149,6 +172,8 @@ struct pommel_manager
 		pommel_mesh->pommelMeshCurve();
 		mirrored_pommel_mesh->offsetMap = pommel_mesh->offsetMap;
 	}
+
+
 };
 
 class App1 : public BaseApplication
@@ -163,9 +188,11 @@ public:
 protected:
 	bool render();
 	void gui();
+
 	void initValues();
 	void updateHeights();
 	void updateWidth();
+	void resetMeshes();
 
 private:
 
@@ -180,8 +207,9 @@ private:
 
 	int damage_iterations;
 	float Amplitude, Frequency;
-	float weaponThickness, lower_weapon_width, lower_weapon_height, lower_weapon_curve, blade_tip, blade_edge;
-	bool realistic_variables, detailed_UI, twoHanded;
+	//float blade_tip, blade_edge;
+	XMFLOAT2 fingerGuard_offset;
+	bool realistic_variables, detailed_UI, twoHanded, leftCurve, rightCurve;
 
 };
 

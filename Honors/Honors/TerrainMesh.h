@@ -3,7 +3,7 @@
 #include <vector>
 #include "Perlin.h"
 
-enum mesh_Type{BLADE, GUARD, GRIP, POMMEL};
+enum mesh_Type{BLADE, GUARD, GUARD_FINGERS, GRIP, POMMEL};
 
 
 class TerrainMesh :
@@ -43,9 +43,6 @@ public:
 	const inline float Get_pommel_point_curvature() { return pommel_point_curvature; }
 	void Set_pommel_point_curvature(float pommelCurvature) { pommel_point_curvature = pommelCurvature; }
 
-	const inline float Get_onesided_width() { return oneSided_width; }
-	void Set_onesided_width(float onesided_Width) { oneSided_width = onesided_Width; }
-
 	const inline int Get_curve_degree() { return curve_degree; }
 	void Set_curve_degree(int curve_Degree) { curve_degree = curve_Degree; }
 
@@ -59,10 +56,19 @@ public:
 	void Set_inverse_bezier_curve(bool inverse_bezierCurve) { bezierInverse = inverse_bezierCurve; }
 
 	const inline bool Get_oneSided() { return oneSided; }
-	void Set_oneSided(bool one_Sided) { oneSided = one_Sided; }
+	void Set_oneSided(bool one_sided) { oneSided = one_sided; }
+
+	const inline bool Get_fingerGuard() { return fingerGuard; }
+	void Set_fingerGuard(bool finger_guard) { fingerGuard = finger_guard; }
+
+	const inline bool Get_Pommel() { return pommel; }
+	void Set_pommel(bool pommel_) { pommel = pommel_; }
 
 	const inline bool Get_Symmetrical() { return symmterical; }
 	void Set_symmetrical(bool Symmetrical) { symmterical = Symmetrical; }
+
+	const inline bool Get_side_tip() { return side_tip; }
+	void Set_side_tip(bool sideTip) { side_tip = sideTip; }
 
 	const inline float GetHeight() { return height; }
 	void SetHeight(float Height) { height = Height; }
@@ -108,13 +114,11 @@ private:
 
 	float dynamic_height, dynamic_width;
 	bool mirrored;
+	bool inverseCurve, isCurve, inverse_pommel_curve, bezierCurve, bezierInverse, fingerGuard, pommel, oneSided, symmterical, side_tip;
+	float handle_increment, pommel_increment, fingerguard_increment, pointHeight, curvature_value, length_base, length_top, pommel_point_curvature, current_width, target_width;
+	int increment, curve_degree, edge_offset;
 
-	int edge_offset;
-
-	bool inverseCurve, isCurve, inverse_pommel_curve, bezierCurve, bezierInverse, oneSided, symmterical;
-	float handle_increment, pommel_increment, pointHeight, curvature_value, length_base, length_top, pommel_point_curvature, oneSided_width, current_width, target_width;
-	int layer_div, curve_degree;;
-	int incremtn_test;
-
+	
+	std::vector<float> loft;
 	Perlin* perlin_noise;
 };
