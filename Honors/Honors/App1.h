@@ -207,7 +207,6 @@ private:
 
 	int damage_iterations;
 	float Amplitude, Frequency;
-	//float blade_tip, blade_edge;
 	XMFLOAT2 fingerGuard_offset;
 	bool realistic_variables, detailed_UI, twoHanded, leftCurve, rightCurve;
 

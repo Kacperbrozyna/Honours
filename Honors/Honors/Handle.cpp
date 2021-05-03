@@ -23,16 +23,45 @@ void Handle::handleMeshCurve()
 
 		for (int j = 0; j < resolution; j++)
 		{
-			//adjusting variable at specific point
-			if (x_dimension_curve)
+			//depending on inverse or not adjusting value
+			if (Get_inverse_curve())
 			{
-				offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((sin((temp_increment * PI / 180))) * Get_curvature_value());
+				if (x_dimension_curve && y_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) - ((((sin((temp_increment * PI / 180))) + sin(((i * increment) * PI / 180))) / 2) * Get_curvature_value());
+				}
+				else if (x_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) - (sin((temp_increment * PI / 180))) * Get_curvature_value();
+				}
+				else if (y_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) - sin(((i * increment) * PI / 180)) * Get_curvature_value();
+				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+				}
 			}
 			else
 			{
-				offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+				if (x_dimension_curve && y_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((((sin((temp_increment * PI / 180)) * 0.5) + sin(((i * increment) * PI / 180)) * 0.5)) * Get_curvature_value());
+				}
+				else if (x_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + (sin((temp_increment * PI / 180))) * Get_curvature_value();
+				}
+				else if (y_dimension_curve)
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + sin(((i * increment) * PI / 180)) * Get_curvature_value();
+				}
+				else
+				{
+					offsetMap[(j * resolution) + i] = (GetThickness() * scale);
+				}
 			}
-
 			//incrementing variable
 			temp_increment += increment;
 		}

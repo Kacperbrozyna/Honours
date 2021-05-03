@@ -73,6 +73,7 @@ bool App1::frame()
 
 		if (rightCurve)
 		{
+			blade.blade_fuller_variables.fuller = false;
 			blade.blade_bezier_variables.bezier_curve = true;
 			blade.blade_bezier_variables.bezier[0] = 0;
 			blade.blade_bezier_variables.bezier[1] = 0.75;
@@ -80,6 +81,7 @@ bool App1::frame()
 		}
 		else if (leftCurve)
 		{
+			blade.blade_fuller_variables.fuller = false;
 			blade.blade_bezier_variables.bezier_curve = true;
 			blade.blade_bezier_variables.bezier[0] = 0;
 			blade.blade_bezier_variables.bezier[1] = -0.75;
@@ -103,8 +105,8 @@ bool App1::frame()
 		{
 			blade.mirrored_blade_mesh->SetHeight(blade.blade_base_variables.height);
 			blade.blade_mesh->SetHeight(blade.blade_base_variables.height);
-			blade.blade_fuller();
 			blade.blade_edge();
+			blade.blade_fuller();
 			updateHeights();
 		}
 
@@ -112,8 +114,8 @@ bool App1::frame()
 		{
 			blade.blade_mesh->SetThickness(blade.blade_base_variables.thickness);
 			blade.mirrored_blade_mesh->SetThickness(blade.blade_base_variables.thickness);
-			blade.blade_fuller();
 			blade.blade_edge();
+			blade.blade_fuller();
 			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
@@ -121,8 +123,8 @@ bool App1::frame()
 		{
 			blade.blade_mesh->SetWidth(blade.blade_base_variables.width);
 			blade.mirrored_blade_mesh->SetWidth(blade.blade_base_variables.width);
-			blade.blade_fuller();
 			blade.blade_edge();
+			blade.blade_fuller();
 			updateWidth();
 		}
 
@@ -146,6 +148,7 @@ bool App1::frame()
 			blade.mirrored_blade_mesh->Set_edge_offset(blade.edge_offset);
 
 			blade.blade_edge();
+			blade.blade_fuller();
 			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
@@ -155,8 +158,8 @@ bool App1::frame()
 			blade.mirrored_blade_mesh->Set_fuller(blade.blade_fuller_variables.fuller);
 			if (blade.blade_fuller_variables.fuller == false)
 			{
-				blade.blade_fuller();
 				blade.blade_edge();
+				blade.blade_fuller();
 			}
 			else
 			{
@@ -502,6 +505,13 @@ bool App1::frame()
 			handle.handle_mesh->Set_curvature_value(handle.handle_curve_variables.Curvature);
 			handle.mirrored_handle_mesh->Set_curvature_value(handle.handle_curve_variables.Curvature);
 
+			if (realistic_variables)
+			{
+				handle.handle_curve_variables.y_dimension = false;
+				handle.handle_mesh->Set_y_dimension_curve(handle.handle_curve_variables.y_dimension);
+				handle.mirrored_handle_mesh->Set_y_dimension_curve(handle.handle_curve_variables.y_dimension);
+			}
+
 			handle.handle_curve();
 			handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
@@ -510,6 +520,14 @@ bool App1::frame()
 		{
 			handle.handle_mesh->Set_x_dimension_curve(handle.handle_curve_variables.x_dimension);
 			handle.mirrored_handle_mesh->Set_x_dimension_curve(handle.handle_curve_variables.x_dimension);
+			handle.handle_curve();
+			handle.regen(renderer->getDevice(), renderer->getDeviceContext());
+		}
+
+		if (handle.handle_curve_variables.y_dimension != handle.handle_mesh->Get_y_dimension_curve())
+		{
+			handle.handle_mesh->Set_y_dimension_curve(handle.handle_curve_variables.y_dimension);
+			handle.mirrored_handle_mesh->Set_y_dimension_curve(handle.handle_curve_variables.y_dimension);
 			handle.handle_curve();
 			handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
@@ -667,11 +685,11 @@ bool App1::render()
 	shader->render(renderer->getDeviceContext(), blade.mirrored_blade_mesh->getIndexCount());
 
 	guard.guard_mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
 	shader->render(renderer->getDeviceContext(), guard.guard_mesh->getIndexCount());
 
 	guard.mirrored_guard_mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
 	shader->render(renderer->getDeviceContext(), guard.mirrored_guard_mesh->getIndexCount());
 
 	if (guard.fingerGuard)
@@ -2145,7 +2163,7 @@ void App1::gui()
 				if (detailed_UI)
 				{
 
-					pommel.pommel = true;
+					pommel.pommel = false;
 
 					blade.blade_mesh->SetHeight(145);
 					blade.mirrored_blade_mesh->SetHeight(145);
@@ -2171,9 +2189,9 @@ void App1::gui()
 					guard.mirrored_guard_mesh->SetThickness(10);
 					guard.guard_base_variables.thickness = 10;
 
-					handle.handle_mesh->SetHeight(80);
-					handle.mirrored_handle_mesh->SetHeight(80);
-					handle.handle_base_variables.height = 80;
+					handle.handle_mesh->SetHeight(125);
+					handle.mirrored_handle_mesh->SetHeight(125);
+					handle.handle_base_variables.height = 125;
 
 					handle.handle_mesh->SetWidth(25);
 					handle.mirrored_handle_mesh->SetWidth(25);
@@ -2268,18 +2286,47 @@ void App1::gui()
 					handle.mirrored_handle_mesh->Set_curvature_value(2);
 					handle.handle_curve_variables.Curvature = 2;
 
-					handle.handle_mesh->Set_length_base(0);
-					handle.mirrored_handle_mesh->Set_length_base(0);
+					handle.handle_mesh->Set_length_base(4);
+					handle.mirrored_handle_mesh->Set_length_base(4);
 					handle.handle_mesh->Set_length_top(0);
 					handle.mirrored_handle_mesh->Set_length_top(0);
-					handle.handle_loft_variables.base_width = 0;
+					handle.handle_loft_variables.base_width = 4;
 					handle.handle_loft_variables.top_width = 0;
 
-					while (handle.handle_loft_variables.layers.size() > 0)
+					while (handle.handle_loft_variables.layers.size() > 4)
 					{
 						handle.handle_loft_variables.layers.pop_back();
 						handle.handle_mesh->meshLayers.pop_back();
 						handle.mirrored_handle_mesh->meshLayers.pop_back();
+					}
+
+					while (handle.handle_loft_variables.layers.size() < 4)
+					{
+						handle.handle_loft_variables.layers.push_back(0);
+						handle.handle_mesh->meshLayers.push_back(0);
+						handle.mirrored_handle_mesh->meshLayers.push_back(0);
+					}
+
+					for (int i = 0; i < handle.handle_loft_variables.layers.size(); i++)
+					{
+						if (i == 0)
+						{
+							handle.handle_loft_variables.layers.at(i) = 5;
+							handle.handle_mesh->meshLayers.at(i) = 5;
+							handle.mirrored_handle_mesh->meshLayers.at(i) = 5;
+						}
+						else if (i== 1)
+						{
+							handle.handle_loft_variables.layers.at(i) = -2;
+							handle.handle_mesh->meshLayers.at(i) = -2;
+							handle.mirrored_handle_mesh->meshLayers.at(i) = -2;
+						}
+						else
+						{
+							handle.handle_loft_variables.layers.at(i) = 0;
+							handle.handle_mesh->meshLayers.at(i) = 0;
+							handle.mirrored_handle_mesh->meshLayers.at(i) = 0;
+						}
 					}
 
 					pommel.pommel_mesh->Set_x_dimension_curve(false);
@@ -2351,7 +2398,7 @@ void App1::gui()
 				if (detailed_UI)
 				{
 					
-					pommel.pommel = true;
+					pommel.pommel = false;
 
 					blade.blade_mesh->SetHeight(145);
 					blade.mirrored_blade_mesh->SetHeight(145);
@@ -2377,9 +2424,9 @@ void App1::gui()
 					guard.mirrored_guard_mesh->SetThickness(0.5);
 					guard.guard_base_variables.thickness = 0.5;
 
-					handle.handle_mesh->SetHeight(80);
-					handle.mirrored_handle_mesh->SetHeight(80);
-					handle.handle_base_variables.height = 80;
+					handle.handle_mesh->SetHeight(125);
+					handle.mirrored_handle_mesh->SetHeight(125);
+					handle.handle_base_variables.height = 125;
 
 					handle.handle_mesh->SetWidth(25);
 					handle.mirrored_handle_mesh->SetWidth(25);
@@ -2474,21 +2521,21 @@ void App1::gui()
 					handle.mirrored_handle_mesh->Set_curvature_value(2);
 					handle.handle_curve_variables.Curvature = 2;
 
-					handle.handle_mesh->Set_length_base(0);
-					handle.mirrored_handle_mesh->Set_length_base(0);
+					handle.handle_mesh->Set_length_base(3);
+					handle.mirrored_handle_mesh->Set_length_base(3);
 					handle.handle_mesh->Set_length_top(0);
 					handle.mirrored_handle_mesh->Set_length_top(0);
-					handle.handle_loft_variables.base_width = 0;
+					handle.handle_loft_variables.base_width = 3;
 					handle.handle_loft_variables.top_width = 0;
 
-					while (handle.handle_loft_variables.layers.size() > 19)
+					while (handle.handle_loft_variables.layers.size() > 50)
 					{
 						handle.handle_loft_variables.layers.pop_back();
 						handle.handle_mesh->meshLayers.pop_back();
 						handle.mirrored_handle_mesh->meshLayers.pop_back();
 					}
 
-					while (handle.handle_loft_variables.layers.size() < 19)
+					while (handle.handle_loft_variables.layers.size() < 50)
 					{
 						handle.handle_loft_variables.layers.push_back(0);
 						handle.handle_mesh->meshLayers.push_back(0);
@@ -2497,29 +2544,35 @@ void App1::gui()
 
 					for (int i = 0; i < handle.handle_loft_variables.layers.size(); i++)
 					{
-						if (i == 7 || i == 11)
-						{
-							handle.handle_loft_variables.layers.at(i) = 1;
-							handle.handle_mesh->meshLayers.at(i) = 1;
-							handle.mirrored_handle_mesh->meshLayers.at(i) = 1;
-						}
-						else if (i == 8 || i == 10)
+						if (i >= 0  && i <=8)
 						{
 							handle.handle_loft_variables.layers.at(i) = 3;
 							handle.handle_mesh->meshLayers.at(i) = 3;
 							handle.mirrored_handle_mesh->meshLayers.at(i) = 3;
 						}
-						else if (i == 9)
+						else if (i == 29)
 						{
 							handle.handle_loft_variables.layers.at(i) = 5;
 							handle.handle_mesh->meshLayers.at(i) = 5;
 							handle.mirrored_handle_mesh->meshLayers.at(i) = 5;
 						}
+						else if (i == 28 || i == 30)
+						{
+							handle.handle_loft_variables.layers.at(i) = 4;
+							handle.handle_mesh->meshLayers.at(i) = 4;
+							handle.mirrored_handle_mesh->meshLayers.at(i) = 4;
+						}
+						else if (i == 27 || i == 31)
+						{
+						handle.handle_loft_variables.layers.at(i) = 3;
+						handle.handle_mesh->meshLayers.at(i) = 3;
+						handle.mirrored_handle_mesh->meshLayers.at(i) = 3;
+						}
 						else
 						{
-						handle.handle_loft_variables.layers.at(i) = 0;
-						handle.handle_mesh->meshLayers.at(i) = 0;
-						handle.mirrored_handle_mesh->meshLayers.at(i) = 0;
+							handle.handle_loft_variables.layers.at(i) = 0;
+							handle.handle_mesh->meshLayers.at(i) = 0;
+							handle.mirrored_handle_mesh->meshLayers.at(i) = 0;
 						}
 					}
 
@@ -2571,20 +2624,311 @@ void App1::gui()
 			}
 		}
 
-		if (ImGui::Button("Weapon Example 5 Min"))
+		if (ImGui::Button("Weapon Example Assegai Min"))
 		{
 			if (detailed_UI)
 			{
+				terrainResolution = 128;
+				if (terrainResolution != blade.blade_mesh->GetResolution()) {
+					blade.blade_mesh->Resize(terrainResolution);
+					blade.mirrored_blade_mesh->Resize(terrainResolution);
+					guard.guard_mesh->Resize(terrainResolution);
+					guard.mirrored_guard_mesh->Resize(terrainResolution);
+					guard.guard_finger_mesh->Resize(terrainResolution);
+					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					handle.handle_mesh->Resize(terrainResolution);
+					handle.mirrored_handle_mesh->Resize(terrainResolution);
+					pommel.pommel_mesh->Resize(terrainResolution);
+					pommel.mirrored_pommel_mesh->Resize(terrainResolution);
+				}
 
+				if (detailed_UI)
+				{
+					blade.blade_mesh->SetHeight(80);
+					blade.mirrored_blade_mesh->SetHeight(80);
+					blade.blade_base_variables.height = 80;
+
+					blade.blade_mesh->SetWidth(35);
+					blade.mirrored_blade_mesh->SetWidth(35);
+					blade.blade_base_variables.width = 35;
+
+					blade.blade_mesh->SetThickness(7.5);
+					blade.mirrored_blade_mesh->SetThickness(7.5);
+					blade.blade_base_variables.thickness = 7.5;
+
+					guard.guard_mesh->SetHeight(35);
+					guard.mirrored_guard_mesh->SetHeight(35);
+					guard.guard_base_variables.height = 35;
+
+					guard.guard_mesh->SetWidth(8.5);
+					guard.mirrored_guard_mesh->SetWidth(8.5);
+					guard.guard_base_variables.width = 8.5;
+
+					guard.guard_mesh->SetThickness(2);
+					guard.mirrored_guard_mesh->SetThickness(2);
+					guard.guard_base_variables.thickness = 2;
+
+					handle.handle_mesh->SetHeight(205);
+					handle.mirrored_handle_mesh->SetHeight(205);
+					handle.handle_base_variables.height = 205;
+
+					handle.handle_mesh->SetWidth(7);
+					handle.mirrored_handle_mesh->SetWidth(7);
+					handle.handle_base_variables.width = 7;
+
+					handle.handle_mesh->SetThickness(2);
+					handle.mirrored_handle_mesh->SetThickness(2);
+					handle.handle_base_variables.thickness = 2;
+
+					blade.blade_mesh->Set_point_height(1.5);
+					blade.mirrored_blade_mesh->Set_point_height(1.5);
+					blade.bladeTipHeight = 1.5;
+
+					blade.blade_mesh->Set_side_tip(false);
+					blade.mirrored_blade_mesh->Set_side_tip(false);
+					blade.sideTip = false;
+
+					blade.blade_mesh->Set_edge_tip(false);
+					blade.mirrored_blade_mesh->Set_edge_tip(false);
+					blade.tip_edge = false;
+
+					blade.blade_mesh->Set_edge_offset(52);
+					blade.mirrored_blade_mesh->Set_edge_offset(52);
+					blade.edge_offset = 52;
+
+					blade.blade_mesh->Set_bezier_curve(true);
+					blade.mirrored_blade_mesh->Set_bezier_curve(true);
+					blade.blade_bezier_variables.bezier_curve = true;
+
+					blade.blade_mesh->Set_fuller(false);
+					blade.mirrored_blade_mesh->Set_fuller(false);
+					blade.blade_fuller_variables.fuller = false;
+
+					blade.blade_mesh->Set_symmetrical(true);
+					blade.mirrored_blade_mesh->Set_symmetrical(true);
+					blade.symmetrical = true;
+
+					blade.blade_mesh->bezierX[0] = -2.25;
+					blade.blade_mesh->bezierX[1] = -2.25;
+					blade.blade_mesh->bezierX[2] = -3;
+					blade.mirrored_blade_mesh->bezierX[0] = -2.25;
+					blade.mirrored_blade_mesh->bezierX[1] = -2.25;
+					blade.mirrored_blade_mesh->bezierX[2] = -3;
+					blade.blade_bezier_variables.bezier[0] = -2.25;
+					blade.blade_bezier_variables.bezier[1] = -2.25;
+					blade.blade_bezier_variables.bezier[2] = -3;
+
+					guard.guard_mesh->Set_bezier_curve(false);
+					guard.mirrored_guard_mesh->Set_bezier_curve(false);
+					guard.guard_bezier_variables.bezier_curve = false;
+
+					guard.guard_mesh->Set_x_dimension_curve(true);
+					guard.guard_mesh->Set_y_dimension_curve(false);
+					guard.mirrored_guard_mesh->Set_x_dimension_curve(true);
+					guard.mirrored_guard_mesh->Set_y_dimension_curve(false);
+					guard.guard_curve_variables.x_dimension = true;
+					guard.guard_curve_variables.y_dimension = false;
+					guard.guard_mesh->Set_x_dimension_curve(1);
+					guard.mirrored_guard_mesh->Set_x_dimension_curve(1);
+					guard.guard_curve_variables.Curvature = 1;
+
+					handle.handle_mesh->Set_x_dimension_curve(true);
+					handle.mirrored_handle_mesh->Set_x_dimension_curve(true);
+					handle.handle_curve_variables.x_dimension = true;
+
+					handle.handle_mesh->Set_curvature_value(1);
+					handle.mirrored_handle_mesh->Set_curvature_value(1);
+					handle.handle_curve_variables.Curvature = 1;
+
+					handle.handle_mesh->Set_length_base(0.0);
+					handle.mirrored_handle_mesh->Set_length_base(0.0);
+					handle.handle_mesh->Set_length_top(0.0);
+					handle.mirrored_handle_mesh->Set_length_top(0.0);
+					handle.handle_loft_variables.base_width = 0.0;
+					handle.handle_loft_variables.top_width = 0.0;
+
+					while (handle.handle_loft_variables.layers.size() > 0)
+					{
+						handle.handle_loft_variables.layers.pop_back();
+						handle.handle_mesh->meshLayers.pop_back();
+						handle.mirrored_handle_mesh->meshLayers.pop_back();
+					}
+
+					pommel.pommel = false;
+					guard.fingerGuard = false;
+
+					blade.blade_edge();
+					guard.guard_curve();
+					handle.handle_curve();
+					pommel.pommel_curve();
+
+					updateHeights();
+					updateWidth();
+				}
 			}
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Weapon Example 5 Max"))
+		if (ImGui::Button("Weapon Example Assegai Max"))
 		{
 			if (detailed_UI)
 			{
+				terrainResolution = 750;
+				if (terrainResolution != blade.blade_mesh->GetResolution()) {
+					blade.blade_mesh->Resize(terrainResolution);
+					blade.mirrored_blade_mesh->Resize(terrainResolution);
+					guard.guard_mesh->Resize(terrainResolution);
+					guard.mirrored_guard_mesh->Resize(terrainResolution);
+					guard.guard_finger_mesh->Resize(terrainResolution);
+					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					handle.handle_mesh->Resize(terrainResolution);
+					handle.mirrored_handle_mesh->Resize(terrainResolution);
+					pommel.pommel_mesh->Resize(terrainResolution);
+					pommel.mirrored_pommel_mesh->Resize(terrainResolution);
+				}
 
+				if (detailed_UI)
+				{
+					blade.blade_mesh->SetHeight(80);
+					blade.mirrored_blade_mesh->SetHeight(80);
+					blade.blade_base_variables.height = 80;
+
+					blade.blade_mesh->SetWidth(35);
+					blade.mirrored_blade_mesh->SetWidth(35);
+					blade.blade_base_variables.width = 35;
+
+					blade.blade_mesh->SetThickness(10);
+					blade.mirrored_blade_mesh->SetThickness(10);
+					blade.blade_base_variables.thickness = 10;
+
+					guard.guard_mesh->SetHeight(35);
+					guard.mirrored_guard_mesh->SetHeight(35);
+					guard.guard_base_variables.height = 35;
+
+					guard.guard_mesh->SetWidth(8.5);
+					guard.mirrored_guard_mesh->SetWidth(8.5);
+					guard.guard_base_variables.width = 8.5;
+
+					guard.guard_mesh->SetThickness(2);
+					guard.mirrored_guard_mesh->SetThickness(2);
+					guard.guard_base_variables.thickness = 2;
+
+					handle.handle_mesh->SetHeight(205);
+					handle.mirrored_handle_mesh->SetHeight(205);
+					handle.handle_base_variables.height = 205;
+
+					handle.handle_mesh->SetWidth(5);
+					handle.mirrored_handle_mesh->SetWidth(5);
+					handle.handle_base_variables.width = 5;
+
+					handle.handle_mesh->SetThickness(2);
+					handle.mirrored_handle_mesh->SetThickness(2);
+					handle.handle_base_variables.thickness = 2;
+
+					blade.blade_mesh->Set_point_height(0.3);
+					blade.mirrored_blade_mesh->Set_point_height(0.3);
+					blade.bladeTipHeight = 0.3;
+
+					blade.blade_mesh->Set_side_tip(false);
+					blade.mirrored_blade_mesh->Set_side_tip(false);
+					blade.sideTip = false;
+
+					blade.blade_mesh->Set_edge_tip(true);
+					blade.mirrored_blade_mesh->Set_edge_tip(true);
+					blade.tip_edge = true;
+
+					blade.blade_mesh->Set_edge_offset(60);
+					blade.mirrored_blade_mesh->Set_edge_offset(60);
+					blade.edge_offset = 60;
+
+					blade.blade_mesh->Set_bezier_curve(true);
+					blade.mirrored_blade_mesh->Set_bezier_curve(true);
+					blade.blade_bezier_variables.bezier_curve = true;
+
+					blade.blade_mesh->Set_fuller(true);
+					blade.mirrored_blade_mesh->Set_fuller(true);
+					blade.blade_fuller_variables.fuller = true;
+
+					blade.blade_mesh->Set_fuller_base(0);
+					blade.blade_mesh->Set_fuller_depth(-0.55);
+					blade.blade_mesh->Set_fuller_height(615);
+					blade.blade_mesh->Set_fuller_width(11);
+					blade.mirrored_blade_mesh->Set_fuller_base(0);
+					blade.mirrored_blade_mesh->Set_fuller_depth(-0.55);
+					blade.mirrored_blade_mesh->Set_fuller_height(615);
+					blade.mirrored_blade_mesh->Set_fuller_width(11);
+					blade.blade_fuller_variables.fuller_base = 0;
+					blade.blade_fuller_variables.fuller_depth = -0.55;
+					blade.blade_fuller_variables.fuller_height = 615;
+					blade.blade_fuller_variables.fuller_width = 11;
+
+
+					blade.blade_mesh->Set_symmetrical(true);
+					blade.mirrored_blade_mesh->Set_symmetrical(true);
+					blade.symmetrical = true;
+
+					blade.blade_mesh->bezierX[0] = -2.25;
+					blade.blade_mesh->bezierX[1] = -2.25;
+					blade.blade_mesh->bezierX[2] = -3;
+					blade.mirrored_blade_mesh->bezierX[0] = -2.25;
+					blade.mirrored_blade_mesh->bezierX[1] = -2.25;
+					blade.mirrored_blade_mesh->bezierX[2] = -3;
+					blade.blade_bezier_variables.bezier[0] = -2.25;
+					blade.blade_bezier_variables.bezier[1] = -2.25;
+					blade.blade_bezier_variables.bezier[2] = -3;
+
+					guard.guard_mesh->Set_bezier_curve(false);
+					guard.mirrored_guard_mesh->Set_bezier_curve(false);
+					guard.guard_bezier_variables.bezier_curve = false;
+
+					guard.guard_mesh->bezierX[2] = 0.5;
+					guard.mirrored_guard_mesh->bezierX[2] = 0.5;
+					guard.guard_bezier_variables.bezier[2] = 0.5;
+
+					guard.guard_mesh->Set_x_dimension_curve(true);
+					guard.guard_mesh->Set_y_dimension_curve(false);
+					guard.mirrored_guard_mesh->Set_x_dimension_curve(true);
+					guard.mirrored_guard_mesh->Set_y_dimension_curve(false);
+					guard.guard_curve_variables.x_dimension = true;
+					guard.guard_curve_variables.y_dimension = false;
+					guard.guard_mesh->Set_x_dimension_curve(1);
+					guard.mirrored_guard_mesh->Set_x_dimension_curve(1);
+					guard.guard_curve_variables.Curvature = 1;
+
+					handle.handle_mesh->Set_x_dimension_curve(true);
+					handle.mirrored_handle_mesh->Set_x_dimension_curve(true);
+					handle.handle_curve_variables.x_dimension = true;
+
+					handle.handle_mesh->Set_curvature_value(1);
+					handle.mirrored_handle_mesh->Set_curvature_value(1);
+					handle.handle_curve_variables.Curvature = 1;
+
+					handle.handle_mesh->Set_length_base(0.75);
+					handle.mirrored_handle_mesh->Set_length_base(0.75);
+					handle.handle_mesh->Set_length_top(0.5);
+					handle.mirrored_handle_mesh->Set_length_top(0.5);
+					handle.handle_loft_variables.base_width = 0.75;
+					handle.handle_loft_variables.top_width = 0.5;
+
+					while (handle.handle_loft_variables.layers.size() > 0)
+					{
+						handle.handle_loft_variables.layers.pop_back();
+						handle.handle_mesh->meshLayers.pop_back();
+						handle.mirrored_handle_mesh->meshLayers.pop_back();
+					}
+
+					pommel.pommel = false;
+					guard.fingerGuard = false;
+
+					blade.blade_edge();
+					blade.blade_fuller();
+					guard.guard_curve();
+					handle.handle_curve();
+					pommel.pommel_curve();
+
+					updateHeights();
+					updateWidth();
+				}
 			}
 		}
 	}
@@ -2731,7 +3075,7 @@ void App1::gui()
 
 			ImGui::NewLine();
 
-			ImGui::SliderFloat("Handle Height", &handle.handle_base_variables.height, 25, 175);
+			ImGui::SliderFloat("Handle Height", &handle.handle_base_variables.height, 25, 300);
 			ImGui::SliderFloat("Handle Width", &handle.handle_base_variables.width, 5, 75);
 			ImGui::SliderFloat("Handle Thickness", &handle.handle_base_variables.thickness, 0.5, 150);
 
@@ -2882,7 +3226,9 @@ void App1::gui()
 			ImGui::Text("Handle Specific Variables");
 			ImGui::NewLine();
 
-			ImGui::Checkbox("Handle Curve in x Dimension", &handle.handle_curve_variables.x_dimension);
+			ImGui::Checkbox("Handle Curve in X Dimension", &handle.handle_curve_variables.x_dimension);
+			ImGui::SameLine();
+			ImGui::Checkbox("Handle Curve in Y Dimension", &handle.handle_curve_variables.y_dimension);
 
 			if (handle.handle_curve_variables.x_dimension)
 			{

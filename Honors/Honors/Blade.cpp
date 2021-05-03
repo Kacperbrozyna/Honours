@@ -35,6 +35,10 @@ void Blade::edge_sharpness()
 				//applying transform
 				offsetMap[(j * resolution) + i] = (edge_point_offset * (resolution - j));
 			}
+			else
+			{
+				offsetMap[(j * resolution) + i] = GetThickness() * scale;
+			}
 		}
 	}
 
