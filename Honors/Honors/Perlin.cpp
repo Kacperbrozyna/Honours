@@ -72,6 +72,7 @@ double Perlin::grad(int hash, double x, double y, double z)
 // function to create the noise
 double Perlin::noise(double x, double y, double z)
 {
+	//setting variables
 	int X = (int)floor(x) & 255;
 	int Y = (int)floor(y) & 255;
 	int Z = (int)floor(z) & 255;
@@ -97,6 +98,8 @@ double Perlin::noise(double x, double y, double z)
 				 lerp(u, grad(permutations[AB + 1], x, y - 1, z - 1), grad(permutations[BB + 1], x - 1, y - 1, z - 1))));
 
 	ret = (ret + 1.0) / 2.0;
+
+	//returning calculated value
 	return ret;
 }
 

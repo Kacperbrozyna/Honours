@@ -14,6 +14,7 @@ public:
 
 	#define PI 3.14159265
 
+	//getters, setters and mesh altering functions
 	void Resize( int newResolution );
 	void Regenerate( ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
@@ -108,17 +109,10 @@ private:
 	float increment_update(float base, float target);
 
 	const float m_UVscale = 10.0f;			//Tile the UV map 10 times across the plane
-
-	float height = 50, width =20, thickness = 2;
-	float position_offsetZ, position_offsetY;
-
-	float dynamic_height, dynamic_width;
-	bool mirrored;
-	bool inverseCurve, isCurve, inverse_pommel_curve, bezierCurve, bezierInverse, fingerGuard, pommel, oneSided, symmterical, side_tip;
-	float handle_increment, pommel_increment, fingerguard_increment, pointHeight, curvature_value, length_base, length_top, pommel_point_curvature, current_width, target_width;
+	bool inverseCurve, isCurve, inverse_pommel_curve, bezierCurve, bezierInverse, fingerGuard, pommel, oneSided, symmterical, side_tip, mirrored;
+	float handle_increment, pommel_increment, fingerguard_increment, pointHeight, curvature_value, length_base, length_top, pommel_point_curvature, current_width, target_width, dynamic_height, dynamic_width, position_offsetZ, position_offsetY, height = 50, width =20, thickness = 2;
 	int increment, curve_degree, edge_offset;
 
-	
 	std::vector<float> loft;
 	Perlin* perlin_noise;
 };

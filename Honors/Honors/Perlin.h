@@ -10,8 +10,8 @@ public:
 	Perlin();
 	~Perlin();
 
+	//functions to randomise and create noise
 	void RandomisePermutations(bool random);
-
 	double noise(double x, double y, double z);
 
 private:

@@ -450,11 +450,12 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			guard_finger_offset.z = (pow(1 - temp_t, 2) * bezierX[0] + 2 * (1 - temp_t) * temp_t * bezierX[1] + pow(temp_t, 2) * bezierX[2]);
 		}
 
+		//resetting variables 
 		current_width = length_base;
 		target_width = length_top;
-
 		fingerguard_increment = increment_update(current_width, target_width);
 
+		//setting the thickness of the object, keeping the edges between the mirrored and non-mirrored meshes
 		if (x == 0 || y == 0 || x == (resolution - 1) || y == (resolution - 1))
 		{
 			guard_finger_offset.x == 0;
@@ -490,12 +491,14 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 	{
 		
 		XMFLOAT3 handle_offset = XMFLOAT3(0, 0, 0);
+
+		//if a loft is enabled
 		if (meshLayers.size() > 0)
 		{
+			//clearing and resetting variables in a container
 			float temp_t = (float)y / (float)resolution;
 			increment = 1;
 			loft.clear();
-
 			loft.push_back(length_base);
 			for (int s = 0; s < meshLayers.size(); s++)
 			{
@@ -503,6 +506,7 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 			}
 			loft.push_back(length_top);
 
+			//looping through all control points to get final value
 			for (int cp = 0; cp < loft.size(); cp++)
 			{
 				for (int i = 0; i < (loft.size() - increment); i++)
@@ -512,6 +516,7 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 				increment++;
 			}
 
+			//setting variable from above calculation
 			if (x < resolution / 2)
 			{
 				handle_offset.z = -loft.at(0) * (((float)(resolution / 2) - x) / ((float)resolution / 2));
@@ -523,11 +528,12 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 		}
 		else
 		{
+			//if loft is not enabled
 			current_width = length_base;
 			target_width = length_top;
 
+			//setting width through interpolation
 			handle_increment = increment_update(current_width, target_width);
-
 			if (x < resolution / 2)
 			{
 				handle_offset.z = ((-current_width /2) - (handle_increment * y)) * -((x - (float)(resolution / 2)) / ((float)resolution / 2));
@@ -544,9 +550,9 @@ XMFLOAT3 TerrainMesh::specific_mesh_Offset(int x, int y)
 	//if the mesh is the pommel
 	else if (meshType == POMMEL)
 	{
+		//setting width through interpolation
 		XMFLOAT3 pommel_offset = XMFLOAT3 (0,0,0);
 		float temp_increment = (float)curve_degree / (float)resolution;
-
 		pommel_increment = increment_update(length_base, length_top);
 
 		if (inverse_pommel_curve == false)
@@ -650,18 +656,16 @@ void TerrainMesh::addDamage_dents(ID3D11Device* device, ID3D11DeviceContext* dev
 				freqVar = Frequency;
 				height = 0;
 
-		
 				//adds the extra height to the current height of the point in the height map
-				
-					height = (0.5f - perlin_noise->noise(offset + ((float)i) * freqVar, 0.0f, offset + ((float)j) * freqVar)) * ampVar;
+				height = (0.5f - perlin_noise->noise(offset + ((float)i) * freqVar, 0.0f, offset + ((float)j) * freqVar)) * ampVar;
 
-					if (height > 0)
+				if (height > 0)
+				{
+					if (offsetMap[(j * resolution) + i] > 0)
 					{
-						if (offsetMap[(j * resolution) + i] > 0)
-						{
-							offsetMap[(j * resolution) + i] -= height;
-						}
+						offsetMap[(j * resolution) + i] -= height;
 					}
+				}
 			}
 		}
 

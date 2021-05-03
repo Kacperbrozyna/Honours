@@ -27,6 +27,7 @@ void Guard::guardMeshCurve()
 			//depending on inverse or not adjusting value
 			if (Get_inverse_curve())
 			{
+				//depending on what type of curves are selected
 				if (x_dimension_curve && y_dimension_curve)
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) - ((((sin((temp_increment * PI / 180))) + sin(((i * increment) * PI / 180))) / 2) * Get_curvature_value());
@@ -46,6 +47,7 @@ void Guard::guardMeshCurve()
 			}
 			else
 			{
+				//depending on what type of curves are selected
 				if (x_dimension_curve && y_dimension_curve)
 				{
 					offsetMap[(j * resolution) + i] = (GetThickness() * scale) + ((((sin((temp_increment * PI / 180))) + sin(((i * increment) * PI / 180))) / 2) * Get_curvature_value());

@@ -96,6 +96,7 @@ void Blade::build_fuller()
 		}
 	}
 
+	//if fuller is not enabled, set offset
 	if(fuller == false)
 	{
 		for (int i = 0; i < (resolution); i++)

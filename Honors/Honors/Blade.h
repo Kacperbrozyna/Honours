@@ -8,9 +8,11 @@ public:
 	Blade(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int resolution = 128);
 	~Blade();
 
+	//functions for altering meshes
 	void edge_sharpness();
 	void build_fuller();
 
+	//getters and setters
 	const inline bool Get_edge_tip() { return edge_tip; }
 	void Set_edge_tip(bool tipEdge) { edge_tip = tipEdge; }
 

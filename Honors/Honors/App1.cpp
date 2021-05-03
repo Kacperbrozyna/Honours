@@ -20,8 +20,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	guard.guard_mesh = new Guard(renderer->getDevice(), renderer->getDeviceContext());
 	guard.mirrored_guard_mesh = new Guard(renderer->getDevice(), renderer->getDeviceContext());
 
-	guard.guard_finger_mesh = new Guard_Fingers(renderer->getDevice(), renderer->getDeviceContext());
-	guard.guard_finger_mirrored_mesh = new Guard_Fingers(renderer->getDevice(), renderer->getDeviceContext());
+	finger_guard.guard_finger_mesh = new Guard_Fingers(renderer->getDevice(), renderer->getDeviceContext());
+	finger_guard.guard_finger_mirrored_mesh = new Guard_Fingers(renderer->getDevice(), renderer->getDeviceContext());
 
 	handle.handle_mesh = new Handle(renderer->getDevice(), renderer->getDeviceContext());
 	handle.mirrored_handle_mesh = new Handle(renderer->getDevice(), renderer->getDeviceContext());
@@ -54,8 +54,7 @@ bool App1::frame()
 {
 	bool result;
 
-		//Statements for Blade
-
+	//if the user interface is simple set specific values
 	if (!detailed_UI)
 	{
 		if (twoHanded)
@@ -101,12 +100,17 @@ bool App1::frame()
 		}
 	}
 
+	//Statements used to automatically regenarate the meshes if adjusted. 
+	//Statements for Blade
 		if (blade.blade_base_variables.height != blade.blade_mesh->GetHeight())
 		{
 			blade.mirrored_blade_mesh->SetHeight(blade.blade_base_variables.height);
 			blade.blade_mesh->SetHeight(blade.blade_base_variables.height);
 			blade.blade_edge();
-			blade.blade_fuller();
+			if (blade.blade_fuller_variables.fuller == true)
+			{
+				blade.blade_fuller();
+			}
 			updateHeights();
 		}
 
@@ -115,7 +119,10 @@ bool App1::frame()
 			blade.blade_mesh->SetThickness(blade.blade_base_variables.thickness);
 			blade.mirrored_blade_mesh->SetThickness(blade.blade_base_variables.thickness);
 			blade.blade_edge();
-			blade.blade_fuller();
+			if (blade.blade_fuller_variables.fuller == true)
+			{
+				blade.blade_fuller();
+			}
 			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
@@ -124,7 +131,10 @@ bool App1::frame()
 			blade.blade_mesh->SetWidth(blade.blade_base_variables.width);
 			blade.mirrored_blade_mesh->SetWidth(blade.blade_base_variables.width);
 			blade.blade_edge();
-			blade.blade_fuller();
+			if (blade.blade_fuller_variables.fuller == true)
+			{
+				blade.blade_fuller();
+			}
 			updateWidth();
 		}
 
@@ -148,7 +158,10 @@ bool App1::frame()
 			blade.mirrored_blade_mesh->Set_edge_offset(blade.edge_offset);
 
 			blade.blade_edge();
-			blade.blade_fuller();
+			if (blade.blade_fuller_variables.fuller == true)
+			{
+				blade.blade_fuller();
+			}
 			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
@@ -159,7 +172,6 @@ bool App1::frame()
 			if (blade.blade_fuller_variables.fuller == false)
 			{
 				blade.blade_edge();
-				blade.blade_fuller();
 			}
 			else
 			{
@@ -252,6 +264,13 @@ bool App1::frame()
 		{
 			blade.blade_mesh->Set_edge_tip(blade.tip_edge);
 			blade.mirrored_blade_mesh->Set_edge_tip(blade.tip_edge);
+			blade.blade_edge();
+
+			if (blade.blade_fuller_variables.fuller == true)
+			{
+				blade.blade_fuller();
+			}
+
 			blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
@@ -336,113 +355,113 @@ bool App1::frame()
 		}
 
 		//statments for Finger Guard
-		if (guard.fingerGuard != guard.guard_finger_mesh->Get_fingerGuard())
+		if (finger_guard.fingerGuard != finger_guard.guard_finger_mesh->Get_fingerGuard())
 		{
-			guard.guard_finger_mesh->Set_fingerGuard(guard.fingerGuard);
-			guard.guard_finger_mirrored_mesh->Set_fingerGuard(guard.fingerGuard);
-			guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+			finger_guard.guard_finger_mesh->Set_fingerGuard(finger_guard.fingerGuard);
+			finger_guard.guard_finger_mirrored_mesh->Set_fingerGuard(finger_guard.fingerGuard);
+			finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 		}
 
-		if (guard.fingerGuard)
+		if (finger_guard.fingerGuard)
 		{
-			if (guard.guard_finger_base_variables.height != guard.guard_finger_mesh->GetHeight())
+			if (finger_guard.guard_finger_base_variables.height != finger_guard.guard_finger_mesh->GetHeight())
 			{
-				guard.guard_finger_mirrored_mesh->SetHeight(guard.guard_finger_base_variables.height);
-				guard.guard_finger_mesh->SetHeight(guard.guard_finger_base_variables.height);
+				finger_guard.guard_finger_mirrored_mesh->SetHeight(finger_guard.guard_finger_base_variables.height);
+				finger_guard.guard_finger_mesh->SetHeight(finger_guard.guard_finger_base_variables.height);
 
 				updateHeights();
 			}
 
-			if (guard.guard_finger_base_variables.thickness != guard.guard_finger_mesh->GetThickness())
+			if (finger_guard.guard_finger_base_variables.thickness != finger_guard.guard_finger_mesh->GetThickness())
 			{
-				guard.guard_finger_mesh->SetThickness(guard.guard_finger_base_variables.thickness);
-				guard.guard_finger_mirrored_mesh->SetThickness(guard.guard_finger_base_variables.thickness);
-				guard.finger_guard_curve();
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->SetThickness(finger_guard.guard_finger_base_variables.thickness);
+				finger_guard.guard_finger_mirrored_mesh->SetThickness(finger_guard.guard_finger_base_variables.thickness);
+				finger_guard.finger_guard_curve();
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_base_variables.width != guard.guard_finger_mesh->GetWidth())
+			if (finger_guard.guard_finger_base_variables.width != finger_guard.guard_finger_mesh->GetWidth())
 			{
-				guard.guard_finger_mesh->SetWidth(guard.guard_finger_base_variables.width);
-				guard.guard_finger_mirrored_mesh->SetWidth(guard.guard_finger_base_variables.width);
+				finger_guard.guard_finger_mesh->SetWidth(finger_guard.guard_finger_base_variables.width);
+				finger_guard.guard_finger_mirrored_mesh->SetWidth(finger_guard.guard_finger_base_variables.width);
 
 				updateWidth();
 			}
 
-			if (fingerGuard_offset.x != guard.finger_guard_offset.x)
+			if (fingerGuard_offset.x != finger_guard.finger_guard_offset.x)
 			{
-				fingerGuard_offset.x = guard.finger_guard_offset.x;
+				fingerGuard_offset.x = finger_guard.finger_guard_offset.x;
 				updateWidth();
 			}
 
-			if (fingerGuard_offset.y != guard.finger_guard_offset.y)
+			if (fingerGuard_offset.y != finger_guard.finger_guard_offset.y)
 			{
-				fingerGuard_offset.y = guard.finger_guard_offset.y;
+				fingerGuard_offset.y = finger_guard.finger_guard_offset.y;
 				updateHeights();
 			}
 
-			if (guard.guard_finger_bezier_variables.bezier_curve != guard.guard_finger_mesh->Get_bezier_curve())
+			if (finger_guard.guard_finger_bezier_variables.bezier_curve != finger_guard.guard_finger_mesh->Get_bezier_curve())
 			{
-				guard.guard_finger_mesh->Set_bezier_curve(guard.guard_finger_bezier_variables.bezier_curve);
-				guard.guard_finger_mirrored_mesh->Set_bezier_curve(guard.guard_finger_bezier_variables.bezier_curve);
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_bezier_curve(finger_guard.guard_finger_bezier_variables.bezier_curve);
+				finger_guard.guard_finger_mirrored_mesh->Set_bezier_curve(finger_guard.guard_finger_bezier_variables.bezier_curve);
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
 			for (int gx = 0; gx < 3; gx++)
 			{
-				if (guard.guard_finger_bezier_variables.bezier[gx] != guard.guard_finger_mesh->bezierX[gx])
+				if (finger_guard.guard_finger_bezier_variables.bezier[gx] != finger_guard.guard_finger_mesh->bezierX[gx])
 				{
-					guard.guard_finger_mesh->bezierX[gx] = guard.guard_finger_bezier_variables.bezier[gx];
-					guard.guard_finger_mirrored_mesh->bezierX[gx] = guard.guard_finger_bezier_variables.bezier[gx];
-					guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+					finger_guard.guard_finger_mesh->bezierX[gx] = finger_guard.guard_finger_bezier_variables.bezier[gx];
+					finger_guard.guard_finger_mirrored_mesh->bezierX[gx] = finger_guard.guard_finger_bezier_variables.bezier[gx];
+					finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 				}
 			}
 
-			if (guard.guard_finger_curve_variables.Curvature != guard.guard_finger_mesh->Get_curvature_value())
+			if (finger_guard.guard_finger_curve_variables.Curvature != finger_guard.guard_finger_mesh->Get_curvature_value())
 			{
-				guard.guard_finger_mesh->Set_curvature_value(guard.guard_finger_curve_variables.Curvature);
-				guard.guard_finger_mirrored_mesh->Set_curvature_value(guard.guard_finger_curve_variables.Curvature);
+				finger_guard.guard_finger_mesh->Set_curvature_value(finger_guard.guard_finger_curve_variables.Curvature);
+				finger_guard.guard_finger_mirrored_mesh->Set_curvature_value(finger_guard.guard_finger_curve_variables.Curvature);
 
-				guard.finger_guard_curve();
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.finger_guard_curve();
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_curve_variables.inverseCurve != guard.guard_finger_mesh->Get_inverse_curve())
+			if (finger_guard.guard_finger_curve_variables.inverseCurve != finger_guard.guard_finger_mesh->Get_inverse_curve())
 			{
-				guard.guard_finger_mesh->Set_inverse_curve(guard.guard_finger_curve_variables.inverseCurve);
-				guard.guard_finger_mirrored_mesh->Set_inverse_curve(guard.guard_finger_curve_variables.inverseCurve);
-				guard.finger_guard_curve();
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_inverse_curve(finger_guard.guard_finger_curve_variables.inverseCurve);
+				finger_guard.guard_finger_mirrored_mesh->Set_inverse_curve(finger_guard.guard_finger_curve_variables.inverseCurve);
+				finger_guard.finger_guard_curve();
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_curve_variables.x_dimension != guard.guard_finger_mesh->Get_x_dimension_curve())
+			if (finger_guard.guard_finger_curve_variables.x_dimension != finger_guard.guard_finger_mesh->Get_x_dimension_curve())
 			{
-				guard.guard_finger_mesh->Set_x_dimension_curve(guard.guard_finger_curve_variables.x_dimension);
-				guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(guard.guard_finger_curve_variables.x_dimension);
-				guard.finger_guard_curve();
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_x_dimension_curve(finger_guard.guard_finger_curve_variables.x_dimension);
+				finger_guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(finger_guard.guard_finger_curve_variables.x_dimension);
+				finger_guard.finger_guard_curve();
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_curve_variables.y_dimension != guard.guard_finger_mesh->Get_y_dimension_curve())
+			if (finger_guard.guard_finger_curve_variables.y_dimension != finger_guard.guard_finger_mesh->Get_y_dimension_curve())
 			{
-				guard.guard_finger_mesh->Set_y_dimension_curve(guard.guard_finger_curve_variables.y_dimension);
-				guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(guard.guard_finger_curve_variables.y_dimension);
-				guard.finger_guard_curve();
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_y_dimension_curve(finger_guard.guard_finger_curve_variables.y_dimension);
+				finger_guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(finger_guard.guard_finger_curve_variables.y_dimension);
+				finger_guard.finger_guard_curve();
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_loft_variables.base_width != guard.guard_finger_mesh->Get_length_base())
+			if (finger_guard.guard_finger_loft_variables.base_width != finger_guard.guard_finger_mesh->Get_length_base())
 			{
-				guard.guard_finger_mesh->Set_length_base(guard.guard_finger_loft_variables.base_width);
-				guard.guard_finger_mirrored_mesh->Set_length_base(guard.guard_finger_loft_variables.base_width);
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_length_base(finger_guard.guard_finger_loft_variables.base_width);
+				finger_guard.guard_finger_mirrored_mesh->Set_length_base(finger_guard.guard_finger_loft_variables.base_width);
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 
-			if (guard.guard_finger_loft_variables.top_width != guard.guard_finger_mesh->Get_length_top())
+			if (finger_guard.guard_finger_loft_variables.top_width != finger_guard.guard_finger_mesh->Get_length_top())
 			{
-				guard.guard_finger_mesh->Set_length_top(guard.guard_finger_loft_variables.top_width);
-				guard.guard_finger_mirrored_mesh->Set_length_top(guard.guard_finger_loft_variables.top_width);
-				guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->Set_length_top(finger_guard.guard_finger_loft_variables.top_width);
+				finger_guard.guard_finger_mirrored_mesh->Set_length_top(finger_guard.guard_finger_loft_variables.top_width);
+				finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 			}
 		}
 		//Statements for Handle
@@ -454,7 +473,7 @@ bool App1::frame()
 
 			if (realistic_variables)
 			{
-				guard.guard_finger_base_variables.height = handle.handle_base_variables.height;
+				finger_guard.guard_finger_base_variables.height = handle.handle_base_variables.height;
 			}
 
 			updateHeights();
@@ -692,15 +711,15 @@ bool App1::render()
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"damascus"), light);
 	shader->render(renderer->getDeviceContext(), guard.mirrored_guard_mesh->getIndexCount());
 
-	if (guard.fingerGuard)
+	if (finger_guard.fingerGuard)
 	{
-		guard.guard_finger_mesh->sendData(renderer->getDeviceContext());
+		finger_guard.guard_finger_mesh->sendData(renderer->getDeviceContext());
 		shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-		shader->render(renderer->getDeviceContext(), guard.guard_finger_mesh->getIndexCount());
+		shader->render(renderer->getDeviceContext(), finger_guard.guard_finger_mesh->getIndexCount());
 
-		guard.guard_finger_mirrored_mesh->sendData(renderer->getDeviceContext());
+		finger_guard.guard_finger_mirrored_mesh->sendData(renderer->getDeviceContext());
 		shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bronze"), light);
-		shader->render(renderer->getDeviceContext(), guard.guard_finger_mirrored_mesh->getIndexCount());
+		shader->render(renderer->getDeviceContext(), finger_guard.guard_finger_mirrored_mesh->getIndexCount());
 	}
 
 	handle.handle_mesh->sendData(renderer->getDeviceContext());
@@ -744,6 +763,7 @@ void App1::gui()
 
 	ImGui::NewLine();
 
+	//used for adjusting the resolution of the meshes
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 	ImGui::SliderInt("Weapon Resolution", &terrainResolution, 100, 1000);
 	if (ImGui::Button("Regenerate Terrain")) {
@@ -752,8 +772,8 @@ void App1::gui()
 			blade.mirrored_blade_mesh->Resize(terrainResolution);
 			guard.guard_mesh->Resize(terrainResolution);
 			guard.mirrored_guard_mesh->Resize(terrainResolution);
-			guard.guard_finger_mesh->Resize(terrainResolution);
-			guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+			finger_guard.guard_finger_mesh->Resize(terrainResolution);
+			finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 			handle.handle_mesh->Resize(terrainResolution);
 			handle.mirrored_handle_mesh->Resize(terrainResolution);
 			pommel.pommel_mesh->Resize(terrainResolution);
@@ -762,11 +782,12 @@ void App1::gui()
 
 		blade.regen(renderer->getDevice(), renderer->getDeviceContext());
 		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
-		guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+		finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 		handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 		pommel.regen(renderer->getDevice(), renderer->getDeviceContext());
 	}
 
+	//calls the reset mesh function
 	if (ImGui::Button("Reset Meshes"))
 	{
 		resetMeshes();
@@ -774,12 +795,15 @@ void App1::gui()
 
 	ImGui::NewLine();
 
+	//responsible for switching between simple and detailed ui 
 	ImGui::Checkbox("Elaborate UI", &detailed_UI);
 	if (detailed_UI)
 	{
+		//if the detailed ui is active, show option for realistic parameters
 		ImGui::Checkbox("Realistic Parameters", &realistic_variables);
 	}
 
+	//if detailed ui is selected show example of weapons created
 	if (detailed_UI)
 	{
 	ImGui::NewLine();
@@ -787,6 +811,7 @@ void App1::gui()
 	ImGui::Text("Weapon Examples");
 	ImGui::NewLine();
 
+	//setting variables for the minimum amount of parameters katana
 		if (ImGui::Button("Weapon Example Katana Min"))
 		{
 			if (detailed_UI)
@@ -797,8 +822,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -842,7 +867,7 @@ void App1::gui()
 				handle.handle_base_variables.thickness = 2;
 
 				pommel.pommel = false;
-				guard.fingerGuard = false;
+				finger_guard.fingerGuard = false;
 
 
 				blade.blade_mesh->Set_point_height(0.75);
@@ -970,6 +995,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the maximum amount of parameters katana
 		ImGui::SameLine();
 		if (ImGui::Button("Weapon Example Katana Max"))
 		{
@@ -981,8 +1007,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -1026,7 +1052,7 @@ void App1::gui()
 				handle.handle_base_variables.thickness = 2;
 
 				pommel.pommel = false;
-				guard.fingerGuard = false;
+				finger_guard.fingerGuard = false;
 
 
 				blade.blade_mesh->Set_point_height(0.15);
@@ -1154,6 +1180,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the minimum amount of parameters gladius
 		if (ImGui::Button("Weapon Example Gladius Min"))
 		{
 			terrainResolution = 128;
@@ -1162,8 +1189,8 @@ void App1::gui()
 				blade.mirrored_blade_mesh->Resize(terrainResolution);
 				guard.guard_mesh->Resize(terrainResolution);
 				guard.mirrored_guard_mesh->Resize(terrainResolution);
-				guard.guard_finger_mesh->Resize(terrainResolution);
-				guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+				finger_guard.guard_finger_mesh->Resize(terrainResolution);
+				finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 				handle.handle_mesh->Resize(terrainResolution);
 				handle.mirrored_handle_mesh->Resize(terrainResolution);
 				pommel.pommel_mesh->Resize(terrainResolution);
@@ -1329,7 +1356,7 @@ void App1::gui()
 				pommel.mirrored_pommel_mesh->Set_curve_degree(160);
 				pommel.curve_degree = 148;
 
-				guard.fingerGuard = false;
+				finger_guard.fingerGuard = false;
 
 				blade.blade_edge();
 				guard.guard_curve();
@@ -1341,6 +1368,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the maximum amount of parameters Gladius
 		ImGui::SameLine();
 		if (ImGui::Button("Weapon Example Gladius Max"))
 		{
@@ -1352,8 +1380,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -1580,7 +1608,7 @@ void App1::gui()
 					pommel.mirrored_pommel_mesh->Set_curve_degree(160);
 					pommel.curve_degree = 148;
 
-					guard.fingerGuard = false;
+					finger_guard.fingerGuard = false;
 
 
 					blade.blade_edge();
@@ -1594,6 +1622,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the minimum amount of parameters Sabre
 		if (ImGui::Button("Weapon Example Sabre Min"))
 		{
 			if (detailed_UI)
@@ -1604,8 +1633,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -1615,7 +1644,7 @@ void App1::gui()
 				if (detailed_UI)
 				{
 					pommel.pommel = true;
-					guard.fingerGuard = true;
+					finger_guard.fingerGuard = true;
 
 					blade.blade_mesh->SetHeight(275);
 					blade.mirrored_blade_mesh->SetHeight(275);
@@ -1641,26 +1670,26 @@ void App1::gui()
 					guard.mirrored_guard_mesh->SetThickness(10);
 					guard.guard_base_variables.thickness = 10;
 
-					guard.guard_finger_mesh->SetHeight(53.5);
-					guard.guard_finger_mirrored_mesh->SetHeight(53.5);
-					guard.guard_finger_base_variables.height = 53.5;
+					finger_guard.guard_finger_mesh->SetHeight(53.5);
+					finger_guard.guard_finger_mirrored_mesh->SetHeight(53.5);
+					finger_guard.guard_finger_base_variables.height = 53.5;
 
-					guard.guard_finger_mesh->SetWidth(1.75);
-					guard.guard_finger_mirrored_mesh->SetWidth(1.75);
-					guard.guard_finger_base_variables.width = 1.75;
+					finger_guard.guard_finger_mesh->SetWidth(1.75);
+					finger_guard.guard_finger_mirrored_mesh->SetWidth(1.75);
+					finger_guard.guard_finger_base_variables.width = 1.75;
 
-					guard.guard_finger_mesh->SetThickness(11);
-					guard.guard_finger_mirrored_mesh->SetThickness(11);
-					guard.guard_finger_base_variables.thickness = 11;
+					finger_guard.guard_finger_mesh->SetThickness(11);
+					finger_guard.guard_finger_mirrored_mesh->SetThickness(11);
+					finger_guard.guard_finger_base_variables.thickness = 11;
 
-					guard.guard_finger_mesh->Set_length_base(0);
-					guard.guard_finger_mirrored_mesh->Set_length_base(0);
-					guard.guard_finger_mesh->Set_length_top(4);
-					guard.guard_finger_mirrored_mesh->Set_length_top(4);
-					guard.guard_finger_loft_variables.base_width = 0;
-					guard.guard_finger_loft_variables.top_width = 4;
+					finger_guard.guard_finger_mesh->Set_length_base(0);
+					finger_guard.guard_finger_mirrored_mesh->Set_length_base(0);
+					finger_guard.guard_finger_mesh->Set_length_top(4);
+					finger_guard.guard_finger_mirrored_mesh->Set_length_top(4);
+					finger_guard.guard_finger_loft_variables.base_width = 0;
+					finger_guard.guard_finger_loft_variables.top_width = 4;
 
-					guard.finger_guard_offset = XMFLOAT2(-5.5, -0.5);
+					finger_guard.finger_guard_offset = XMFLOAT2(-5.5, -0.5);
 
 					handle.handle_mesh->SetHeight(50);
 					handle.mirrored_handle_mesh->SetHeight(50);
@@ -1733,30 +1762,30 @@ void App1::gui()
 					blade.blade_fuller_variables.fuller_height = 0;
 					blade.blade_fuller_variables.fuller_width = 0;
 
-					guard.guard_finger_mesh->Set_bezier_curve(true);
-					guard.guard_finger_mirrored_mesh->Set_bezier_curve(true);
-					guard.guard_finger_bezier_variables.bezier_curve = true;
+					finger_guard.guard_finger_mesh->Set_bezier_curve(true);
+					finger_guard.guard_finger_mirrored_mesh->Set_bezier_curve(true);
+					finger_guard.guard_finger_bezier_variables.bezier_curve = true;
 
-					guard.guard_finger_mesh->bezierX[0] = 5.6;
-					guard.guard_finger_mesh->bezierX[1] = -4.3;
-					guard.guard_finger_mesh->bezierX[2] = 2.95;
-					guard.guard_finger_mirrored_mesh->bezierX[0] = 5.6;
-					guard.guard_finger_mirrored_mesh->bezierX[1] = -4.3;
-					guard.guard_finger_mirrored_mesh->bezierX[2] = 2.95;
-					guard.guard_finger_bezier_variables.bezier[0] = 5.6;
-					guard.guard_finger_bezier_variables.bezier[1] = -4.3;
-					guard.guard_finger_bezier_variables.bezier[2] = 2.95;
+					finger_guard.guard_finger_mesh->bezierX[0] = 5.6;
+					finger_guard.guard_finger_mesh->bezierX[1] = -4.3;
+					finger_guard.guard_finger_mesh->bezierX[2] = 2.95;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[0] = 5.6;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[1] = -4.3;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[2] = 2.95;
+					finger_guard.guard_finger_bezier_variables.bezier[0] = 5.6;
+					finger_guard.guard_finger_bezier_variables.bezier[1] = -4.3;
+					finger_guard.guard_finger_bezier_variables.bezier[2] = 2.95;
 
-					guard.guard_finger_mesh->Set_x_dimension_curve(false);
-					guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(false);
-					guard.guard_finger_curve_variables.x_dimension = false;
+					finger_guard.guard_finger_mesh->Set_x_dimension_curve(false);
+					finger_guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(false);
+					finger_guard.guard_finger_curve_variables.x_dimension = false;
 
-					guard.guard_finger_mesh->Set_y_dimension_curve(false);
-					guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(false);
-					guard.guard_finger_curve_variables.y_dimension = false;
+					finger_guard.guard_finger_mesh->Set_y_dimension_curve(false);
+					finger_guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(false);
+					finger_guard.guard_finger_curve_variables.y_dimension = false;
 
-					guard.guard_finger_mesh->Set_curvature_value(0);
-					guard.guard_finger_mirrored_mesh->Set_curvature_value(0);
+					finger_guard.guard_finger_mesh->Set_curvature_value(0);
+					finger_guard.guard_finger_mirrored_mesh->Set_curvature_value(0);
 					guard.guard_curve_variables.Curvature = 0;
 
 					guard.guard_mesh->Set_x_dimension_curve(false);
@@ -1852,6 +1881,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the maximum amount of parameters Sabre
 		ImGui::SameLine();
 		if (ImGui::Button("Weapon Example Sabre Max"))
 		{
@@ -1863,8 +1893,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -1874,7 +1904,7 @@ void App1::gui()
 				if (detailed_UI)
 				{
 					pommel.pommel = true;
-					guard.fingerGuard = true;
+					finger_guard.fingerGuard = true;
 
 					blade.blade_mesh->SetHeight(275);
 					blade.mirrored_blade_mesh->SetHeight(275);
@@ -1900,26 +1930,26 @@ void App1::gui()
 					guard.mirrored_guard_mesh->SetThickness(70);
 					guard.guard_base_variables.thickness = 70;
 
-					guard.guard_finger_mesh->SetHeight(50);
-					guard.guard_finger_mirrored_mesh->SetHeight(50);
-					guard.guard_finger_base_variables.height = 50;
+					finger_guard.guard_finger_mesh->SetHeight(50);
+					finger_guard.guard_finger_mirrored_mesh->SetHeight(50);
+					finger_guard.guard_finger_base_variables.height = 50;
 
-					guard.guard_finger_mesh->SetWidth(1.75);
-					guard.guard_finger_mirrored_mesh->SetWidth(1.75);
-					guard.guard_finger_base_variables.width = 1.75;
+					finger_guard.guard_finger_mesh->SetWidth(1.75);
+					finger_guard.guard_finger_mirrored_mesh->SetWidth(1.75);
+					finger_guard.guard_finger_base_variables.width = 1.75;
 
-					guard.guard_finger_mesh->SetThickness(11);
-					guard.guard_finger_mirrored_mesh->SetThickness(11);
-					guard.guard_finger_base_variables.thickness = 11;
+					finger_guard.guard_finger_mesh->SetThickness(11);
+					finger_guard.guard_finger_mirrored_mesh->SetThickness(11);
+					finger_guard.guard_finger_base_variables.thickness = 11;
 
-					guard.guard_finger_mesh->Set_length_base(0);
-					guard.guard_finger_mirrored_mesh->Set_length_base(0);
-					guard.guard_finger_mesh->Set_length_top(4);
-					guard.guard_finger_mirrored_mesh->Set_length_top(4);
-					guard.guard_finger_loft_variables.base_width = 0;
-					guard.guard_finger_loft_variables.top_width = 4;
+					finger_guard.guard_finger_mesh->Set_length_base(0);
+					finger_guard.guard_finger_mirrored_mesh->Set_length_base(0);
+					finger_guard.guard_finger_mesh->Set_length_top(4);
+					finger_guard.guard_finger_mirrored_mesh->Set_length_top(4);
+					finger_guard.guard_finger_loft_variables.base_width = 0;
+					finger_guard.guard_finger_loft_variables.top_width = 4;
 
-					guard.finger_guard_offset = XMFLOAT2(-5.5,-0.5);
+					finger_guard.finger_guard_offset = XMFLOAT2(-5.5,-0.5);
 
 					handle.handle_mesh->SetHeight(50);
 					handle.mirrored_handle_mesh->SetHeight(50);
@@ -1952,6 +1982,10 @@ void App1::gui()
 					blade.blade_mesh->Set_side_tip(false);
 					blade.mirrored_blade_mesh->Set_side_tip(false);
 					blade.sideTip = false;
+
+					blade.blade_mesh->Set_edge_tip(false);
+					blade.mirrored_blade_mesh->Set_edge_tip(false);
+					blade.tip_edge = false;
 
 					blade.blade_mesh->Set_edge_offset(370);
 					blade.mirrored_blade_mesh->Set_edge_offset(370);
@@ -1992,31 +2026,31 @@ void App1::gui()
 					blade.blade_fuller_variables.fuller_height = 0;
 					blade.blade_fuller_variables.fuller_width = 0;
 
-					guard.guard_finger_mesh->Set_bezier_curve(true);
-					guard.guard_finger_mirrored_mesh->Set_bezier_curve(true);
-					guard.guard_finger_bezier_variables.bezier_curve = true;
+					finger_guard.guard_finger_mesh->Set_bezier_curve(true);
+					finger_guard.guard_finger_mirrored_mesh->Set_bezier_curve(true);
+					finger_guard.guard_finger_bezier_variables.bezier_curve = true;
 
-					guard.guard_finger_mesh->bezierX[0] = 5.8;
-					guard.guard_finger_mesh->bezierX[1] = -4.3;
-					guard.guard_finger_mesh->bezierX[2] = 3;
-					guard.guard_finger_mirrored_mesh->bezierX[0] = 5.8;
-					guard.guard_finger_mirrored_mesh->bezierX[1] = -4.3;
-					guard.guard_finger_mirrored_mesh->bezierX[2] = 3;
-					guard.guard_finger_bezier_variables.bezier[0] = 5.8;
-					guard.guard_finger_bezier_variables.bezier[1] = -4.3;
-					guard.guard_finger_bezier_variables.bezier[2] = 3;
+					finger_guard.guard_finger_mesh->bezierX[0] = 5.8;
+					finger_guard.guard_finger_mesh->bezierX[1] = -4.3;
+					finger_guard.guard_finger_mesh->bezierX[2] = 3;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[0] = 5.8;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[1] = -4.3;
+					finger_guard.guard_finger_mirrored_mesh->bezierX[2] = 3;
+					finger_guard.guard_finger_bezier_variables.bezier[0] = 5.8;
+					finger_guard.guard_finger_bezier_variables.bezier[1] = -4.3;
+					finger_guard.guard_finger_bezier_variables.bezier[2] = 3;
 
-					guard.guard_finger_mesh->Set_x_dimension_curve(true);
-					guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(true);
-					guard.guard_finger_curve_variables.x_dimension = true;
+					finger_guard.guard_finger_mesh->Set_x_dimension_curve(true);
+					finger_guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(true);
+					finger_guard.guard_finger_curve_variables.x_dimension = true;
 
-					guard.guard_finger_mesh->Set_y_dimension_curve(true);
-					guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(true);
-					guard.guard_finger_curve_variables.y_dimension = true;
+					finger_guard.guard_finger_mesh->Set_y_dimension_curve(true);
+					finger_guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(true);
+					finger_guard.guard_finger_curve_variables.y_dimension = true;
 
-					guard.guard_finger_mesh->Set_curvature_value(0.275);
-					guard.guard_finger_mirrored_mesh->Set_curvature_value(0.275);
-					guard.guard_curve_variables.Curvature = 0.275;
+					finger_guard.guard_finger_mesh->Set_curvature_value(0.275);
+					finger_guard.guard_finger_mirrored_mesh->Set_curvature_value(0.275);
+					finger_guard.guard_finger_curve_variables.Curvature = 0.275;
 
 					guard.guard_mesh->Set_x_dimension_curve(3);
 					guard.mirrored_guard_mesh->Set_x_dimension_curve(3);
@@ -2141,7 +2175,7 @@ void App1::gui()
 			
 		} 
 		
-
+		//setting variables for the minimum amount of parameters Pugio
 		if (ImGui::Button("Weapon Example Pugio Min"))
 		{
 			if (detailed_UI)
@@ -2152,8 +2186,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -2363,7 +2397,7 @@ void App1::gui()
 					pommel.mirrored_pommel_mesh->Set_curve_degree(180);
 					pommel.curve_degree = 180;
 
-					guard.fingerGuard = false;
+					finger_guard.fingerGuard = false;
 
 					blade.blade_edge();
 					guard.guard_curve();
@@ -2376,6 +2410,7 @@ void App1::gui()
 			}
 		}  
 
+		//setting variables for the maximum amount of parameters Pugio
 		ImGui::SameLine();
 		if (ImGui::Button("Weapon Example Pugio Max"))
 		{
@@ -2387,8 +2422,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -2610,7 +2645,7 @@ void App1::gui()
 					pommel.mirrored_pommel_mesh->Set_curve_degree(180);
 					pommel.curve_degree = 180;
 
-					guard.fingerGuard = false;
+					finger_guard.fingerGuard = false;
 
 					blade.blade_edge();
 					blade.blade_fuller();
@@ -2624,6 +2659,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the minimum amount of parameters Assegai
 		if (ImGui::Button("Weapon Example Assegai Min"))
 		{
 			if (detailed_UI)
@@ -2634,8 +2670,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -2755,7 +2791,7 @@ void App1::gui()
 					}
 
 					pommel.pommel = false;
-					guard.fingerGuard = false;
+					finger_guard.fingerGuard = false;
 
 					blade.blade_edge();
 					guard.guard_curve();
@@ -2768,6 +2804,7 @@ void App1::gui()
 			}
 		}
 
+		//setting variables for the maximum amount of parameters Assegai
 		ImGui::SameLine();
 		if (ImGui::Button("Weapon Example Assegai Max"))
 		{
@@ -2779,8 +2816,8 @@ void App1::gui()
 					blade.mirrored_blade_mesh->Resize(terrainResolution);
 					guard.guard_mesh->Resize(terrainResolution);
 					guard.mirrored_guard_mesh->Resize(terrainResolution);
-					guard.guard_finger_mesh->Resize(terrainResolution);
-					guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mesh->Resize(terrainResolution);
+					finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 					handle.handle_mesh->Resize(terrainResolution);
 					handle.mirrored_handle_mesh->Resize(terrainResolution);
 					pommel.pommel_mesh->Resize(terrainResolution);
@@ -2918,7 +2955,7 @@ void App1::gui()
 					}
 
 					pommel.pommel = false;
-					guard.fingerGuard = false;
+					finger_guard.fingerGuard = false;
 
 					blade.blade_edge();
 					blade.blade_fuller();
@@ -2933,6 +2970,7 @@ void App1::gui()
 		}
 	}
 
+	//if the user interface is simple
 	if (!detailed_UI)
 	{
 		ImGui::NewLine();
@@ -2940,10 +2978,12 @@ void App1::gui()
 		ImGui::Text("Base Variables");
 		ImGui::NewLine();
 
+		//bool to see if the weapon is two handed or not
 		ImGui::Checkbox("Two Handed Weapon", &twoHanded);
 
 		ImGui::NewLine();
 
+		//sliders for all the base variables and checking if pommel is enabled
 		ImGui::SliderFloat("Blade Height", &blade.blade_base_variables.height, 25, 300);
 		ImGui::SliderFloat("Blade Width", &blade.blade_base_variables.width, 5, 75);
 		ImGui::SliderFloat("Blade Thickness", &blade.blade_base_variables.thickness, 0.5, 150);
@@ -2970,11 +3010,13 @@ void App1::gui()
 			ImGui::SliderFloat("Pommel Thickness", &pommel.pommel_base_variables.thickness, 0.1, 150);
 		}
 
+		//specific variable section
 		ImGui::NewLine();
 		ImGui::Separator();
 		ImGui::Text("Specific Variables");
 		ImGui::NewLine();
 
+		//checks for right and left curve blade checkboxes
 		if (rightCurve == false)
 		{
 			ImGui::Checkbox("Blade Curve Left", &leftCurve);
@@ -2984,6 +3026,7 @@ void App1::gui()
 			ImGui::Checkbox("Blade Curve Right", &rightCurve);
 		}
 
+		//check for fuller checkbox
 		if (rightCurve == false && leftCurve == false)
 		{
 			ImGui::Checkbox("Blade Fuller", &blade.blade_fuller_variables.fuller);
@@ -2991,6 +3034,7 @@ void App1::gui()
 
 		ImGui::NewLine();
 
+		//guard curve variable options
 		ImGui::Checkbox("Guard Curve", &guard.guard_curve_variables.x_dimension);
 		if (guard.guard_curve_variables.x_dimension == true)
 		{
@@ -3000,6 +3044,7 @@ void App1::gui()
 
 		ImGui::NewLine();
 
+		//handle curve variable and width options
 		ImGui::Checkbox("Handle Curve", &handle.handle_curve_variables.x_dimension);
 		if (handle.handle_curve_variables.x_dimension == true)
 		{
@@ -3010,6 +3055,7 @@ void App1::gui()
 
 		ImGui::NewLine();
 
+		//pommel curve variable options
 		if (pommel.pommel)
 		{
 			ImGui::Checkbox("Pommel Curve", &pommel.pommel_curve_variables_thickness.x_dimension);
@@ -3024,14 +3070,16 @@ void App1::gui()
 		ImGui::Separator();
 		ImGui::Text("Finshing Touches");
 		ImGui::NewLine();
+
+		//section to add a damage texture to the weapon
 		if (ImGui::Button("Add damage"))
 		{
 			for (int i = 0; i < 25; i++)
 			{
 				blade.blade_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 				blade.mirrored_blade_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
-				guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
-				guard.guard_finger_mirrored_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
+				finger_guard.guard_finger_mirrored_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 				guard.guard_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 				guard.mirrored_guard_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 				handle.handle_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
@@ -3042,8 +3090,8 @@ void App1::gui()
 
 			blade.blade_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
 			blade.mirrored_blade_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
-			guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
-			guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
+			finger_guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
+			finger_guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
 			guard.guard_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
 			guard.mirrored_guard_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
 			handle.handle_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), 0.25, 0.025);
@@ -3063,6 +3111,7 @@ void App1::gui()
 			ImGui::Text("Base Variables");
 			ImGui::NewLine();
 
+			//sliders for base variables and checkboxes for finger guard and pommel
 			ImGui::SliderFloat("Blade Height", &blade.blade_base_variables.height, 25, 500);
 			ImGui::SliderFloat("Blade Width", &blade.blade_base_variables.width, 5, 75);
 			ImGui::SliderFloat("Blade Thickness", &blade.blade_base_variables.thickness, 0.5, 150);
@@ -3090,16 +3139,16 @@ void App1::gui()
 			}
 
 			ImGui::NewLine();
-			ImGui::Checkbox("Finger Guard", &guard.fingerGuard);
+			ImGui::Checkbox("Finger Guard", &finger_guard.fingerGuard);
 
-			if (guard.fingerGuard == true)
+			if (finger_guard.fingerGuard == true)
 			{
 
-				ImGui::SliderFloat("Finger Guard Height", &guard.guard_finger_base_variables.height, 0, 200);
-				ImGui::SliderFloat("Finger Guard Width", &guard.guard_finger_base_variables.width, 0, 250);
-				ImGui::SliderFloat("Finger Guard Thickness", &guard.guard_finger_base_variables.thickness, 0.5, 150);
-				ImGui::SliderFloat("Finger Guard Offset X", &guard.finger_guard_offset.x, -25, 50);
-				ImGui::SliderFloat("Finger Guard Offset Y", &guard.finger_guard_offset.y, -25, 50);
+				ImGui::SliderFloat("Finger Guard Height", &finger_guard.guard_finger_base_variables.height, 0, 200);
+				ImGui::SliderFloat("Finger Guard Width", &finger_guard.guard_finger_base_variables.width, 0, 250);
+				ImGui::SliderFloat("Finger Guard Thickness", &finger_guard.guard_finger_base_variables.thickness, 0.5, 150);
+				ImGui::SliderFloat("Finger Guard Offset X", &finger_guard.finger_guard_offset.x, -25, 50);
+				ImGui::SliderFloat("Finger Guard Offset Y", &finger_guard.finger_guard_offset.y, -25, 50);
 			}
 			
 			ImGui::NewLine();
@@ -3107,6 +3156,7 @@ void App1::gui()
 			ImGui::Text("Blade Specific Variables");
 			ImGui::NewLine();
 
+			//specific checkboxes and sliders for the blade
 			ImGui::SliderFloat("Tip Height", &blade.bladeTipHeight, 0, 10);
 			ImGui::Checkbox("Tip on the Edge", &blade.sideTip);
 			ImGui::NewLine();
@@ -3115,7 +3165,7 @@ void App1::gui()
 
 			if (blade.edge_offset > 0)
 			{
-				ImGui::Checkbox("Tip Edge", &blade.tip_edge);
+				ImGui::Checkbox("3-Sided Edge", &blade.tip_edge);
 			}
 
 			ImGui::NewLine();
@@ -3162,6 +3212,7 @@ void App1::gui()
 			ImGui::Text("Guard Specific Variables");
 			ImGui::NewLine();
 
+			//specific checkboxes and sliders for the guard
 			ImGui::Checkbox("Guard Bezier Curve", &guard.guard_bezier_variables.bezier_curve);
 			if (guard.guard_bezier_variables.bezier_curve == true)
 			{
@@ -3181,7 +3232,9 @@ void App1::gui()
 				ImGui::Checkbox("Inverse guard Curvature", &guard.guard_curve_variables.inverseCurve);
 			}
 
-			if (guard.fingerGuard == true)
+
+			//specific checkboxes and sliders for finger guard if the finger guard is enabled
+			if (finger_guard.fingerGuard == true)
 			{
 
 			ImGui::NewLine();
@@ -3189,13 +3242,13 @@ void App1::gui()
 			ImGui::Text("Finger Guard Specific Variables");
 			ImGui::NewLine();
 		
-				ImGui::Checkbox("Finger Guard Bezier Curve", &guard.guard_finger_bezier_variables.bezier_curve);
-				if (guard.guard_finger_bezier_variables.bezier_curve == true)
+				ImGui::Checkbox("Finger Guard Bezier Curve", &finger_guard.guard_finger_bezier_variables.bezier_curve);
+				if (finger_guard.guard_finger_bezier_variables.bezier_curve == true)
 				{
 					for (int gx = 0; gx < 3; gx++)
 					{
 						ImGui::PushID(gx);
-						ImGui::SliderFloat("control point", &guard.guard_finger_bezier_variables.bezier[gx], -15, 15);
+						ImGui::SliderFloat("control point", &finger_guard.guard_finger_bezier_variables.bezier[gx], -15, 15);
 						ImGui::SameLine();
 						ImGui::Text("%i", gx);
 						ImGui::PopID();
@@ -3205,19 +3258,19 @@ void App1::gui()
 				ImGui::NewLine();
 
 
-				ImGui::SliderFloat("Base Finger Guard Width", &guard.guard_finger_loft_variables.base_width, 0, 15);
-				ImGui::SliderFloat("Top Finger Guard Width", &guard.guard_finger_loft_variables.top_width, 0, 15);
+				ImGui::SliderFloat("Base Finger Guard Width", &finger_guard.guard_finger_loft_variables.base_width, 0, 15);
+				ImGui::SliderFloat("Top Finger Guard Width", &finger_guard.guard_finger_loft_variables.top_width, 0, 15);
 
 				ImGui::NewLine();
 
-				ImGui::Checkbox("Finger Guard Curve in X Dimension", &guard.guard_finger_curve_variables.x_dimension);
+				ImGui::Checkbox("Finger Guard Curve in X Dimension", &finger_guard.guard_finger_curve_variables.x_dimension);
 				ImGui::SameLine();
-				ImGui::Checkbox("Finger Guard Curve in Y Dimension", &guard.guard_finger_curve_variables.y_dimension);
+				ImGui::Checkbox("Finger Guard Curve in Y Dimension", &finger_guard.guard_finger_curve_variables.y_dimension);
 
-				if (guard.guard_finger_curve_variables.x_dimension || guard.guard_finger_curve_variables.y_dimension)
+				if (finger_guard.guard_finger_curve_variables.x_dimension || finger_guard.guard_finger_curve_variables.y_dimension)
 				{
-					ImGui::SliderFloat("Finger Guard Curve", &guard.guard_finger_curve_variables.Curvature, 0, 5);
-					ImGui::Checkbox("Inverse Finger Guard Curvature", &guard.guard_finger_curve_variables.inverseCurve);
+					ImGui::SliderFloat("Finger Guard Curve", &finger_guard.guard_finger_curve_variables.Curvature, 0, 5);
+					ImGui::Checkbox("Inverse Finger Guard Curvature", &finger_guard.guard_finger_curve_variables.inverseCurve);
 				}
 			}
 	
@@ -3226,11 +3279,12 @@ void App1::gui()
 			ImGui::Text("Handle Specific Variables");
 			ImGui::NewLine();
 
+			//specific checkboxes and sliders for the handle
 			ImGui::Checkbox("Handle Curve in X Dimension", &handle.handle_curve_variables.x_dimension);
 			ImGui::SameLine();
 			ImGui::Checkbox("Handle Curve in Y Dimension", &handle.handle_curve_variables.y_dimension);
 
-			if (handle.handle_curve_variables.x_dimension)
+			if (handle.handle_curve_variables.x_dimension || handle.handle_curve_variables.y_dimension)
 			{
 				ImGui::SliderFloat("handle Curve", &handle.handle_curve_variables.Curvature, 0, 5);
 			}
@@ -3275,6 +3329,7 @@ void App1::gui()
 				ImGui::PopID();
 			}
 
+			//specific checkboxes and sliders for the pommel if the pommel is enabled
 			if (pommel.pommel)
 			{
 				ImGui::NewLine();
@@ -3308,11 +3363,13 @@ void App1::gui()
 					ImGui::SliderInt("Curve Degree", &pommel.curve_degree, 0, 720);
 				}
 			}
+
 			ImGui::NewLine();
 			ImGui::Separator();
 			ImGui::Text("Finishing Touches");
 			ImGui::NewLine();
 
+			//specific checkboxes and slider for damage textures (scrapes and dents)
 			ImGui::SliderInt("Damage Iterations", &damage_iterations, 0, 50);
 			if (ImGui::Button("Add Blade scrape damage"))
 			{
@@ -3332,14 +3389,14 @@ void App1::gui()
 				}
 			}
 
-			if (guard.fingerGuard)
+			if (finger_guard.fingerGuard)
 			{
 				if (ImGui::Button("Add Finger Guard scrape damage"))
 				{
 					for (int i = 0; i < damage_iterations; i++)
 					{
-						guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
-						guard.guard_finger_mirrored_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
+						finger_guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
+						finger_guard.guard_finger_mirrored_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 					}
 				}
 			}
@@ -3382,12 +3439,12 @@ void App1::gui()
 				guard.mirrored_guard_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
 			}
 
-			if (guard.fingerGuard)
+			if (finger_guard.fingerGuard)
 			{
 				if (ImGui::Button("Add Finger Guard dent damage"))
 				{
-					guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
-					guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
+					finger_guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
+					finger_guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
 				}
 			}
 
@@ -3416,6 +3473,7 @@ void App1::gui()
 		ImGui::Text("Base Variables");
 		ImGui::NewLine();
 
+		////specific checkboxes and sliders for all base variables, checkboxes and sliders for finger guard and pommel specific variables
 		ImGui::SliderFloat("Blade Height", &blade.blade_base_variables.height, 25, 500);
 		ImGui::SliderFloat("Blade Width", &blade.blade_base_variables.width, 5, 75);
 		ImGui::SliderFloat("Blade Thickness", &blade.blade_base_variables.thickness, 0.5, 15);
@@ -3456,14 +3514,14 @@ void App1::gui()
 		}
 
 		ImGui::NewLine();
-		ImGui::Checkbox("Finger Guard", &guard.fingerGuard);
+		ImGui::Checkbox("Finger Guard", &finger_guard.fingerGuard);
 
-		if (guard.fingerGuard == true)
+		if (finger_guard.fingerGuard == true)
 		{
-			ImGui::SliderFloat("Finger Guard Width", &guard.guard_finger_base_variables.width, 2.5, 10);
-			ImGui::SliderFloat("Finger Guard Thickness", &guard.guard_finger_base_variables.thickness, 0.5, 150);
-			ImGui::SliderFloat("Finger Guard Offset X", &guard.finger_guard_offset.x, -25, 50);
-			ImGui::SliderFloat("Finger Guard Offset Y", &guard.finger_guard_offset.y, -25, 50);
+			ImGui::SliderFloat("Finger Guard Width", &finger_guard.guard_finger_base_variables.width, 2.5, 10);
+			ImGui::SliderFloat("Finger Guard Thickness", &finger_guard.guard_finger_base_variables.thickness, 0.5, 150);
+			ImGui::SliderFloat("Finger Guard Offset X", &finger_guard.finger_guard_offset.x, -25, 50);
+			ImGui::SliderFloat("Finger Guard Offset Y", &finger_guard.finger_guard_offset.y, -25, 50);
 		}
 
 		ImGui::NewLine();
@@ -3471,6 +3529,7 @@ void App1::gui()
 		ImGui::Text("Blade Specific Variables");
 		ImGui::NewLine();
 
+		//specific checkboxes and sliders for the blade
 		ImGui::SliderFloat("Tip Height", &blade.bladeTipHeight, 0, 10);
 		ImGui::Checkbox("Tip on the Edge", &blade.sideTip);
 
@@ -3480,7 +3539,7 @@ void App1::gui()
 
 		if (blade.edge_offset > 0)
 		{
-			ImGui::Checkbox("Tip Edge", &blade.tip_edge);
+			ImGui::Checkbox("3-Sided Edge", &blade.tip_edge);
 		}
 
 		ImGui::NewLine();
@@ -3530,6 +3589,7 @@ void App1::gui()
 		ImGui::Text("Guard Specific Variables");
 		ImGui::NewLine();
 
+		//specific checkboxes and sliders for the guard
 		ImGui::Checkbox("Guard Bezier Curve", &guard.guard_bezier_variables.bezier_curve);
 		if (guard.guard_bezier_variables.bezier_curve == true)
 		{
@@ -3549,7 +3609,9 @@ void App1::gui()
 			ImGui::Checkbox("Inverse guard Curvature", &guard.guard_curve_variables.inverseCurve);
 		}
 
-		if (guard.fingerGuard == true)
+
+		//specific checkboxes and sliders for the finger guard if enabled
+		if (finger_guard.fingerGuard == true)
 		{
 
 			ImGui::NewLine();
@@ -3557,13 +3619,13 @@ void App1::gui()
 			ImGui::Text("Finger Guard Specific Variables");
 			ImGui::NewLine();
 
-			ImGui::Checkbox("Finger Guard Bezier Curve", &guard.guard_finger_bezier_variables.bezier_curve);
-			if (guard.guard_finger_bezier_variables.bezier_curve == true)
+			ImGui::Checkbox("Finger Guard Bezier Curve", &finger_guard.guard_finger_bezier_variables.bezier_curve);
+			if (finger_guard.guard_finger_bezier_variables.bezier_curve == true)
 			{
 				for (int gx = 0; gx < 3; gx++)
 				{
 				ImGui::PushID(gx);
-				ImGui::SliderFloat("control point", &guard.guard_finger_bezier_variables.bezier[gx], -15, 15);
+				ImGui::SliderFloat("control point", &finger_guard.guard_finger_bezier_variables.bezier[gx], -15, 15);
 				ImGui::SameLine();
 				ImGui::Text("%i", gx);
 				ImGui::PopID();
@@ -3572,19 +3634,19 @@ void App1::gui()
 
 			ImGui::NewLine();
 
-			ImGui::SliderFloat("Base Finger Guard Width", &guard.guard_finger_loft_variables.base_width, 0, 5);
-			ImGui::SliderFloat("Top Finger Guard Width", &guard.guard_finger_loft_variables.top_width, 0, 5);
+			ImGui::SliderFloat("Base Finger Guard Width", &finger_guard.guard_finger_loft_variables.base_width, 0, 5);
+			ImGui::SliderFloat("Top Finger Guard Width", &finger_guard.guard_finger_loft_variables.top_width, 0, 5);
 
 			ImGui::NewLine();
 
-			ImGui::Checkbox("Finger Guard Curve in X Dimension", &guard.guard_finger_curve_variables.x_dimension);
+			ImGui::Checkbox("Finger Guard Curve in X Dimension", &finger_guard.guard_finger_curve_variables.x_dimension);
 			ImGui::SameLine();
-			ImGui::Checkbox("Finger Guard Curve in Y Dimension", &guard.guard_finger_curve_variables.y_dimension);
+			ImGui::Checkbox("Finger Guard Curve in Y Dimension", &finger_guard.guard_finger_curve_variables.y_dimension);
 
-			if (guard.guard_finger_curve_variables.x_dimension || guard.guard_finger_curve_variables.y_dimension)
+			if (finger_guard.guard_finger_curve_variables.x_dimension || finger_guard.guard_finger_curve_variables.y_dimension)
 			{
-				ImGui::SliderFloat("Finger Guard Curve", &guard.guard_finger_curve_variables.Curvature, 0, 5);
-				ImGui::Checkbox("Inverse Finger Guard Curvature", &guard.guard_finger_curve_variables.inverseCurve);
+				ImGui::SliderFloat("Finger Guard Curve", &finger_guard.guard_finger_curve_variables.Curvature, 0, 5);
+				ImGui::Checkbox("Inverse Finger Guard Curvature", &finger_guard.guard_finger_curve_variables.inverseCurve);
 			}
 		}
 
@@ -3593,6 +3655,7 @@ void App1::gui()
 		ImGui::Text("Handle Specific Variables");
 		ImGui::NewLine();
 
+		//specific checkboxes and sliders for the handle
 		ImGui::Checkbox("Handle Curve in x Dimension", &handle.handle_curve_variables.x_dimension);
 
 		if (handle.handle_curve_variables.x_dimension)
@@ -3646,7 +3709,7 @@ void App1::gui()
 		ImGui::Text("Pommel Specific Variables");
 		ImGui::NewLine();
 
-
+		//specific checkboxes and slider for the pommel
 		ImGui::Checkbox("Pommel Curve in X Dimension", &pommel.pommel_curve_variables_thickness.x_dimension);
 		ImGui::SameLine();
 		ImGui::Checkbox("Pommel Curve in Y Dimension", &pommel.pommel_curve_variables_thickness.y_dimension);
@@ -3677,6 +3740,7 @@ void App1::gui()
 		ImGui::Text("Finishing Touches");
 		ImGui::NewLine();
 
+		//specific checkboxes and sliders for the textures (scrapes and dents)
 		ImGui::SliderInt("Damage Iterations", &damage_iterations, 0, 50);
 		if (ImGui::Button("Add Blade scrape damage"))
 		{
@@ -3696,13 +3760,13 @@ void App1::gui()
 			}
 		}
 	
-		if (guard.fingerGuard)
+		if (finger_guard.fingerGuard)
 		{
 			if (ImGui::Button("Add Finger Guard scrape damage"))
 			{
 				for (int i = 0; i < damage_iterations; i++)
 				{
-					guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
+					finger_guard.guard_finger_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 					guard.mirrored_guard_mesh->addDamage_scrape(renderer->getDevice(), renderer->getDeviceContext());
 				}
 			}
@@ -3740,12 +3804,12 @@ void App1::gui()
 			blade.mirrored_blade_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
 		}
 
-		if (guard.fingerGuard)
+		if (finger_guard.fingerGuard)
 		{
 			if (ImGui::Button("Add Finger Guard dent damage"))
 			{
-				guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
-				guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
+				finger_guard.guard_finger_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
+				finger_guard.guard_finger_mirrored_mesh->addDamage_dents(renderer->getDevice(), renderer->getDeviceContext(), Amplitude, Frequency);
 			}
 		}
 
@@ -3780,6 +3844,7 @@ void App1::gui()
 
 void App1::initValues()
 {
+	//initalising variables when application is started
 	fingerGuard_offset.x = 0;
 	fingerGuard_offset.y = 0;
 	pommel.pommel = true;
@@ -3800,15 +3865,16 @@ void App1::initValues()
 	blade.blade_base_variables.thickness = blade.blade_mesh->GetThickness();
 	blade.blade_base_variables.width = blade.blade_mesh->GetWidth();
 	
+
 	guard.mirrored_guard_mesh->setMirrored(true);
 	guard.guard_base_variables.height = guard.guard_mesh->GetHeight();
 	guard.guard_base_variables.thickness = guard.guard_mesh->GetThickness();
 	guard.guard_base_variables.width = guard.guard_mesh->GetWidth();
 
-	guard.guard_finger_mirrored_mesh->setMirrored(true);
-	guard.guard_finger_base_variables.height = guard.guard_mesh->GetHeight();
-	guard.guard_finger_base_variables.thickness = guard.guard_mesh->GetThickness();
-	guard.guard_finger_base_variables.width = guard.guard_mesh->GetWidth();
+	finger_guard.guard_finger_mirrored_mesh->setMirrored(true);
+	finger_guard.guard_finger_base_variables.height = guard.guard_mesh->GetHeight();
+	finger_guard.guard_finger_base_variables.thickness = guard.guard_mesh->GetThickness();
+	finger_guard.guard_finger_base_variables.width = guard.guard_mesh->GetWidth();
 
 	handle.handle_mesh->setMirrored(true);
 	handle.handle_base_variables.height = handle.handle_mesh ->GetHeight();
@@ -3826,8 +3892,8 @@ void App1::initValues()
 	blade.mirrored_blade_mesh->Resize(terrainResolution);
 	guard.guard_mesh->Resize(terrainResolution);
 	guard.mirrored_guard_mesh->Resize(terrainResolution);
-	guard.guard_finger_mesh->Resize(terrainResolution);
-	guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
+	finger_guard.guard_finger_mesh->Resize(terrainResolution);
+	finger_guard.guard_finger_mirrored_mesh->Resize(terrainResolution);
 	handle.handle_mesh->Resize(terrainResolution);
 	handle.mirrored_handle_mesh->Resize(terrainResolution);
 	pommel.pommel_mesh->Resize(terrainResolution);
@@ -3851,9 +3917,9 @@ void App1::updateHeights()
 	handle.mirrored_handle_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight());
 	handle.regen(renderer->getDevice(), renderer->getDeviceContext());
 
-	guard.guard_finger_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + fingerGuard_offset.y);
-	guard.guard_finger_mirrored_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + fingerGuard_offset.y);
-	guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+	finger_guard.guard_finger_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + fingerGuard_offset.y);
+	finger_guard.guard_finger_mirrored_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + fingerGuard_offset.y);
+	finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 
 	//guard third
 	guard.guard_mesh->SetOffsetY(pommel.pommel_mesh->GetDynamicHeight() + handle.handle_mesh->GetDynamicHeight());
@@ -3884,9 +3950,9 @@ void App1::updateWidth()
 		guard.mirrored_guard_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth() / 2 - guard.guard_mesh->GetDynamicWidth() / 2);
 		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 
-		guard.guard_finger_mesh->SetOffsetZ(fingerGuard_offset.x);
-		guard.guard_finger_mirrored_mesh->SetOffsetZ(fingerGuard_offset.x);
-		guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+		finger_guard.guard_finger_mesh->SetOffsetZ(fingerGuard_offset.x);
+		finger_guard.guard_finger_mirrored_mesh->SetOffsetZ(fingerGuard_offset.x);
+		finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 
 		//regenerating blade mesh
 		blade.blade_mesh->SetOffsetZ(pommel.pommel_mesh->GetDynamicWidth() / 2 - blade.blade_mesh->GetDynamicWidth() / 2);
@@ -3905,9 +3971,9 @@ void App1::updateWidth()
 		guard.mirrored_guard_mesh->SetOffsetZ(handle.handle_mesh->GetDynamicWidth() / 2 - guard.guard_mesh->GetDynamicWidth() / 2);
 		guard.regen(renderer->getDevice(), renderer->getDeviceContext());
 
-		guard.guard_finger_mesh->SetOffsetZ(fingerGuard_offset.x);
-		guard.guard_finger_mirrored_mesh->SetOffsetZ(fingerGuard_offset.x);
-		guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
+		finger_guard.guard_finger_mesh->SetOffsetZ(fingerGuard_offset.x);
+		finger_guard.guard_finger_mirrored_mesh->SetOffsetZ(fingerGuard_offset.x);
+		finger_guard.finger_regen(renderer->getDevice(), renderer->getDeviceContext());
 
 		//regenerating blade mesh
 		blade.blade_mesh->SetOffsetZ(handle.handle_mesh->GetDynamicWidth() / 2 - blade.blade_mesh->GetDynamicWidth() / 2);
@@ -3920,6 +3986,7 @@ void App1::resetMeshes()
 {
 	if (detailed_UI)
 	{
+		//resetting variables if detailed user interface is enabled 
 		blade.blade_mesh->SetHeight(50);
 		blade.mirrored_blade_mesh->SetHeight(50);
 		blade.blade_base_variables.height = 50;
@@ -3944,25 +4011,61 @@ void App1::resetMeshes()
 		guard.mirrored_guard_mesh->SetThickness(2);
 		guard.guard_base_variables.thickness=2;
 
-		guard.fingerGuard = false;
-		guard.guard_finger_mesh->SetHeight(50);
-		guard.guard_finger_mirrored_mesh->SetHeight(50);
-		guard.guard_finger_base_variables.height = 50;
+		finger_guard.fingerGuard = false;
+		finger_guard.guard_finger_mesh->SetHeight(50);
+		finger_guard.guard_finger_mirrored_mesh->SetHeight(50);
+		finger_guard.guard_finger_base_variables.height = 50;
 
-		guard.guard_finger_mesh->SetWidth(20);
-		guard.guard_finger_mirrored_mesh->SetWidth(20);
-		guard.guard_finger_base_variables.width = 20;
+		finger_guard.guard_finger_mesh->SetWidth(20);
+		finger_guard.guard_finger_mirrored_mesh->SetWidth(20);
+		finger_guard.guard_finger_base_variables.width = 20;
 
-		guard.guard_finger_mesh->SetThickness(2);
-		guard.guard_finger_mirrored_mesh->SetThickness(2);
-		guard.guard_finger_base_variables.thickness = 2;
+		finger_guard.guard_finger_mesh->SetThickness(2);
+		finger_guard.guard_finger_mirrored_mesh->SetThickness(2);
+		finger_guard.guard_finger_base_variables.thickness = 2;
 
-		guard.finger_guard_offset = XMFLOAT2(0, 0);
-		guard.guard_finger_mesh->SetOffsetY(0);
+		finger_guard.finger_guard_offset = XMFLOAT2(0, 0);
+		finger_guard.guard_finger_mesh->SetOffsetY(0);
 		guard.mirrored_guard_mesh->SetOffsetY(0);
-		guard.guard_finger_mesh->SetOffsetZ(0);
-		guard.guard_finger_mirrored_mesh->SetOffsetZ(0);
+		finger_guard.guard_finger_mesh->SetOffsetZ(0);
+		finger_guard.guard_finger_mirrored_mesh->SetOffsetZ(0);
 
+		finger_guard.guard_finger_mesh->Set_bezier_curve(false);
+		finger_guard.guard_finger_mirrored_mesh->Set_bezier_curve(false);
+		finger_guard.guard_finger_bezier_variables.bezier_curve = false;
+
+		finger_guard.guard_finger_mesh->bezierX[0] = 0;
+		finger_guard.guard_finger_mesh->bezierX[1] = 0;
+		finger_guard.guard_finger_mesh->bezierX[2] = 0;
+		finger_guard.guard_finger_mirrored_mesh->bezierX[0] = 0;
+		finger_guard.guard_finger_mirrored_mesh->bezierX[1] = 0;
+		finger_guard.guard_finger_mirrored_mesh->bezierX[2] = 0;
+		finger_guard.guard_finger_bezier_variables.bezier[0] = 0;
+		finger_guard.guard_finger_bezier_variables.bezier[1] = 0;
+		finger_guard.guard_finger_bezier_variables.bezier[2] = 0;
+
+		finger_guard.guard_finger_mesh->Set_length_base(0);
+		finger_guard.guard_finger_mirrored_mesh->Set_length_base(0);
+		finger_guard.guard_finger_mesh->Set_length_top(0);
+		finger_guard.guard_finger_mirrored_mesh->Set_length_top(0);
+		finger_guard.guard_finger_loft_variables.base_width = 0;
+		finger_guard.guard_finger_loft_variables.top_width = 0;
+
+		finger_guard.guard_finger_mesh->Set_x_dimension_curve(false);
+		finger_guard.guard_finger_mirrored_mesh->Set_x_dimension_curve(false);
+		finger_guard.guard_finger_curve_variables.x_dimension = false;
+
+		finger_guard.guard_finger_mesh->Set_y_dimension_curve(false);
+		finger_guard.guard_finger_mirrored_mesh->Set_y_dimension_curve(false);
+		finger_guard.guard_finger_curve_variables.y_dimension = false;
+
+		finger_guard.guard_finger_mesh->Set_curvature_value(0);
+		finger_guard.guard_finger_mirrored_mesh->Set_curvature_value(0);
+		finger_guard.guard_finger_curve_variables.Curvature = 0;
+
+		finger_guard.guard_finger_mesh->Set_inverse_curve(false);
+		finger_guard.guard_finger_mirrored_mesh->Set_inverse_curve(false);
+		finger_guard.guard_finger_curve_variables.inverseCurve = false;
 
 		handle.handle_mesh->SetHeight(50);
 		handle.mirrored_handle_mesh->SetHeight(50);
@@ -4029,7 +4132,7 @@ void App1::resetMeshes()
 		blade.blade_bezier_variables.bezier[1] = 0;
 		blade.blade_bezier_variables.bezier[2] = 0;
 
-		guard.fingerGuard = false;
+		finger_guard.fingerGuard = false;
 
 		guard.guard_mesh->Set_bezier_curve(false);
 		guard.mirrored_guard_mesh->Set_bezier_curve(false);
@@ -4112,6 +4215,7 @@ void App1::resetMeshes()
 	}
 	else
 	{
+	//resetting variables if simple user interface is used
 	blade.blade_mesh->SetHeight(50);
 	blade.mirrored_blade_mesh->SetHeight(50);
 	blade.blade_base_variables.height = 50;

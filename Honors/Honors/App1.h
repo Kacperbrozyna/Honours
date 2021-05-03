@@ -11,6 +11,7 @@
 #include "Guard.h"
 #include "Guard_Fingers.h"
 
+//structs to hold variables for specific functions
 struct base_variables
 {
 	float height, width, thickness;
@@ -48,6 +49,8 @@ struct curve_variables
 	bool inverseCurve, isCurve, x_dimension, y_dimension;
 };
 
+
+//struct managers to hold mesh specific variables and functions
 struct blade_manager
 {
 	Blade* blade_mesh;
@@ -86,12 +89,27 @@ struct guard_manager
 	Guard* guard_mesh;
 	Guard* mirrored_guard_mesh;
 
-	Guard_Fingers* guard_finger_mesh;
-	Guard_Fingers* guard_finger_mirrored_mesh;
-
 	base_variables guard_base_variables;
 	curve_variables guard_curve_variables;
 	bezier_variables guard_bezier_variables;
+
+	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+	{
+		guard_mesh->Regenerate(device, deviceContext);
+		mirrored_guard_mesh->Regenerate(device, deviceContext);
+	};
+
+	void guard_curve()
+	{
+		guard_mesh->guardMeshCurve();
+		mirrored_guard_mesh->offsetMap = guard_mesh->offsetMap;
+	}
+};
+
+struct finger_guard_manager
+{
+	Guard_Fingers* guard_finger_mesh;
+	Guard_Fingers* guard_finger_mirrored_mesh;
 
 	base_variables guard_finger_base_variables;
 	curve_variables guard_finger_curve_variables;
@@ -101,27 +119,15 @@ struct guard_manager
 	bool fingerGuard;
 	XMFLOAT2 finger_guard_offset;
 
-	void regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
-	{
-		guard_mesh->Regenerate(device, deviceContext);
-		mirrored_guard_mesh->Regenerate(device, deviceContext);
-	};
-
 	void finger_regen(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
 		guard_finger_mesh->Regenerate(device, deviceContext);
 		guard_finger_mirrored_mesh->Regenerate(device, deviceContext);
 	};
 
-	void guard_curve()
-	{
-		guard_mesh->guardMeshCurve();
-		mirrored_guard_mesh->offsetMap = guard_mesh->offsetMap;
-	}
-
 	void finger_guard_curve()
 	{
-		guard_finger_mesh->guardMeshCurve();
+		guard_finger_mesh->finger_guardMeshCurve();
 		guard_finger_mirrored_mesh->offsetMap = guard_finger_mesh->offsetMap;
 	}
 };
@@ -202,6 +208,7 @@ private:
 
 	blade_manager blade;
 	guard_manager guard;
+	finger_guard_manager finger_guard;
 	handle_manager handle;
 	pommel_manager pommel;
 
