@@ -72,30 +72,34 @@ void Blade::build_fuller()
 	//checking if the width of the fuller is above 0
 	if (fuller_width > 0)
 	{
-		//creating and setting temporary variables
-	float width_diff = float(fuller_width) / GetWidth();
-	float fuller_pos_x = resolution * width_diff;
-	float sin_increment = 180 / fuller_pos_x;
-	float temp_total_increment;
+	
+			//creating and setting temporary variables
+			float width_diff = float(fuller_width) / GetWidth();
+			float fuller_pos_x = resolution * width_diff;
+			float sin_increment = 180 / fuller_pos_x;
+			float temp_total_increment;
 
-		//looping through the points in the mesh
-		for (int i = fuller_base; i < (fuller_height); i++)
-		{
-			temp_total_increment = 0;
-
-			//looping through the minimum x value to the max x value of the fuller width, being centered
-			for (int j = 0; j < (resolution); j++)
+			//looping through the points in the mesh
+			for (int i = fuller_base; i < (fuller_height); i++)
 			{
-				if (j > (resolution / 2) - int(fuller_pos_x / 2) && j < (resolution / 2) + int(fuller_pos_x / 2))
+				temp_total_increment = 0;
+
+				//looping through the minimum x value to the max x value of the fuller width, being centered
+				for (int j = 0; j < (resolution); j++)
 				{
-					//applying offset and incrementing value
-					offsetMap[(j * resolution) + i] = GetThickness() * scale - ((sin((temp_total_increment * PI / 180))) * fuller_depth);
-					temp_total_increment += sin_increment;
+					if (j > (resolution / 2) - int(fuller_pos_x / 2) && j < (resolution / 2) + int(fuller_pos_x / 2))
+					{
+						//applying offset and incrementing value
+						offsetMap[(j * resolution) + i] = GetThickness() * scale - ((sin((temp_total_increment * PI / 180))) * fuller_depth);
+						temp_total_increment += sin_increment;
+					}
 				}
 			}
-		}
-	}
 
+			
+		
+	}
+	
 	//if fuller is not enabled, set offset
 	if(fuller == false)
 	{

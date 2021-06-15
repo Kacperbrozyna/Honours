@@ -35,5 +35,7 @@ private:
 	int fuller_base, fuller_width, fuller_height = GetHeight() / 2;
 	float fuller_depth;
 	bool edge_tip, fuller;
+
+	float time;
 };
 
